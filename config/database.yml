@@ -10,11 +10,14 @@ default: &default
 development:
   <<: *default
   database: <%= ENV.fetch("DB_NAME", "pdxhackerspace_library_development") %>
+  seeds: true
 
 test:
   <<: *default
   database: <%= ENV.fetch("DB_NAME", "pdxhackerspace_library_test") %>
+  seeds: false
 
 production:
   <<: *default
   database: <%= ENV.fetch("DB_NAME", "pdxhackerspace_library_production") %>
+  seeds: false

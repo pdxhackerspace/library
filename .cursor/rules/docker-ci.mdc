@@ -31,7 +31,7 @@ Use `-f docker-compose.<stack>.yml`; each stack sets a top-level `name:` and exp
 - **Tests:** `docker compose -f docker-compose.test.yml run --rm pdxhackerspace-library-test-runner`
 - **Lint:** `docker compose -f docker-compose.lint.yml run --rm pdxhackerspace-library-lint-rubocop`
 
-Migrations run automatically on web/Sidekiq startup in dev and production (`bin/prepare-database` → `db:prepare`). Development also runs `db:seed`.
+Migrations run automatically on web/Sidekiq startup in dev and production (`bin/prepare-database` → `db:prepare`). Seeds run only in development (`database.yml` `seeds: true` + explicit `db:seed` in `bin/prepare-database`; production has `seeds: false`).
 
 Dev/test/lint bind-mount the repo; production uses the built image only.
 

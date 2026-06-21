@@ -48,7 +48,7 @@ docker compose -f docker-compose.lint.yml run --rm pdxhackerspace-library-lint-r
 
 ## Authentication
 
-**Local admin** — set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and optionally `ADMIN_NAME` in `.env`. The account is created on `db:seed` (also run automatically on first server boot in Docker).
+**Local admin** — set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and optionally `ADMIN_NAME` in `.env`. The account is created on `db:seed` (run automatically in development Docker on startup; run manually in production if needed).
 
 **OIDC (optional)** — set `OIDC_ENABLED=true` and configure `OIDC_ISSUER`, `OIDC_CLIENT_ID`, and `OIDC_CLIENT_SECRET`. Users sign in via the OIDC button on the login page.
 
