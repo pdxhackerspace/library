@@ -42,22 +42,31 @@ module OidcClaims
   def extract(source, key)
     return if source.nil?
 
-    if source.is_a?(Hash)
-      return source[key.to_s] if source.key?(key.to_s)
-      return source[key.to_sym] if source.key?(key.to_sym)
-    elsif source.respond_to?(:[])
-      begin
-        value = source[key.to_s]
-        return value unless value.nil?
+    extract_from_hash(source, key) ||
+      extract_from_indexable(source, key) ||
+      extract_from_method(source, key)
+  end
 
-        value = source[key.to_sym]
-        return value unless value.nil?
-      rescue NameError, NoMethodError
-        nil
-      end
-    end
+  def extract_from_hash(source, key)
+    return unless source.is_a?(Hash)
 
-    return source.public_send(key) if source.respond_to?(key)
+    return source[key.to_s] if source.key?(key.to_s)
+    return source[key.to_sym] if source.key?(key.to_sym)
+
+    nil
+  end
+
+  def extract_from_indexable(source, key)
+    return if source.is_a?(Hash)
+    return unless source.respond_to?(:[])
+
+    source[key.to_s] || source[key.to_sym]
+  rescue NameError
+    nil
+  end
+
+  def extract_from_method(source, key)
+    source.public_send(key) if source.respond_to?(key)
   end
 
   def group_values(auth)
