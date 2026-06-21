@@ -8,7 +8,7 @@ class BooksController < ApplicationController
 
   def index
     @books = Book.includes(:authors, :isbns, :location, loans: :user).ordered
-    @active_loans = Loan.active.includes(:book, :user).recent
+    @active_loans = current_user.admin? ? Loan.active.includes(:book, :user).recent : Loan.none
   end
 
   def show; end

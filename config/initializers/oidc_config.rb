@@ -28,4 +28,28 @@ module OidcConfig
   def redirect_configured?
     ENV['OIDC_REDIRECT_URI'].present? || ENV['APP_BASE_URL'].present?
   end
+
+  def admin_claim_keys
+    claim_keys('OIDC_ADMIN_CLAIMS', %w[is_admin admin])
+  end
+
+  def editor_claim_keys
+    claim_keys('OIDC_EDITOR_CLAIMS', %w[is_editor editor])
+  end
+
+  def admin_groups
+    group_names('OIDC_ADMIN_GROUPS')
+  end
+
+  def editor_groups
+    group_names('OIDC_EDITOR_GROUPS')
+  end
+
+  def claim_keys(env_key, defaults)
+    ENV.fetch(env_key, defaults.join(',')).split(',').map(&:strip).compact_blank
+  end
+
+  def group_names(env_key)
+    ENV.fetch(env_key, '').split(',').map(&:strip).compact_blank
+  end
 end

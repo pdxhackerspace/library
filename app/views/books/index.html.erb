@@ -6,8 +6,10 @@
     <div class="text-secondary small mt-1">
       <span class="text-body"><%= @books.size %></span> titles ·
       <span class="text-body"><%= @books.sum(&:copies_count) %></span> copies ·
-      <span class="text-success"><%= @books.count(&:available?) %></span> available ·
-      <span class="text-warning"><%= @active_loans.size %></span> on loan
+      <span class="text-success"><%= @books.count(&:available?) %></span> available
+      <% if current_user.admin? %>
+        · <span class="text-warning"><%= @active_loans.size %></span> on loan
+      <% end %>
     </div>
   </div>
 </div>
@@ -50,9 +52,14 @@
             <% else %>
               <% loan = book.active_loan %>
               <span class="text-secondary small">
-                <%= loan.user.name %>
-                <% if loan.user_id == current_user.id || current_user.admin? %>
+                <% if current_user.admin? %>
+                  <%= loan.user.name %>
                   · <%= button_to 'Return', return_book_path(book), class: 'btn btn-outline-secondary btn-sm d-inline-block ms-1' %>
+                <% elsif loan.user_id == current_user.id %>
+                  Checked out to you
+                  · <%= button_to 'Return', return_book_path(book), class: 'btn btn-outline-secondary btn-sm d-inline-block ms-1' %>
+                <% else %>
+                  On loan
                 <% end %>
               </span>
             <% end %>

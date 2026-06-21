@@ -43,6 +43,15 @@ class UserTest < ActiveSupport::TestCase
     assert user.editor?
   end
 
+  test 'from_omniauth sets admin from id token claim' do
+    user = User.from_omniauth(
+      omniauth_auth(raw_info: {}, id_token_payload: { 'is_admin' => true, 'is_editor' => true })
+    )
+
+    assert user.admin?
+    assert user.editor?
+  end
+
   test 'from_omniauth clears roles when claims are false' do
     user = create_oidc_user(uid: '456', email: 'former-admin@example.com', admin: true, editor: true)
 
@@ -102,10 +111,21 @@ class UserTest < ActiveSupport::TestCase
     )
   end
 
-  def omniauth_auth(is_admin: false, is_editor: false, uid: '123', email: 'oidc@example.com')
+  def omniauth_auth(is_admin: false, is_editor: false, uid: '123', email: 'oidc@example.com', **options)
     info = Struct.new(:email, :name, :is_admin, :is_editor).new(email, 'OIDC User', nil, nil)
-    extra = Struct.new(:raw_info).new({ 'is_admin' => is_admin, 'is_editor' => is_editor })
+    raw_info = options.fetch(:raw_info) { { 'is_admin' => is_admin, 'is_editor' => is_editor } }
+    id_token_payload = options[:id_token_payload]
+    extra = Struct.new(:raw_info).new(raw_info)
+    payload = id_token_payload || {}
+    credentials = Struct.new(:id_token).new(payload.present? ? encode_jwt(payload) : nil)
 
-    Struct.new(:provider, :uid, :info, :extra).new('oidc', uid, info, extra)
+    Struct.new(:provider, :uid, :info, :extra, :credentials).new('oidc', uid, info, extra, credentials)
+  end
+
+  def encode_jwt(payload)
+    header = Base64.urlsafe_encode64({ alg: 'none', typ: 'JWT' }.to_json, padding: false)
+    body = Base64.urlsafe_encode64(payload.to_json, padding: false)
+
+    "#{header}.#{body}."
   end
 end

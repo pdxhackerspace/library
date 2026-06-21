@@ -77,10 +77,15 @@
 
       <% if @book.on_loan? %>
         <% loan = @book.active_loan %>
-        <dt class="col-sm-3 text-secondary">Borrower</dt>
-        <dd class="col-sm-9"><%= loan.user.name %></dd>
-        <dt class="col-sm-3 text-secondary">Due</dt>
-        <dd class="col-sm-9"><%= loan.due_on.strftime('%b %-d, %Y') %></dd>
+        <% if current_user.admin? || loan.user_id == current_user.id %>
+          <dt class="col-sm-3 text-secondary"><%= loan.user_id == current_user.id ? 'Your loan' : 'Borrower' %></dt>
+          <dd class="col-sm-9"><%= loan.user_id == current_user.id ? 'Checked out to you' : loan.user.name %></dd>
+          <dt class="col-sm-3 text-secondary">Due</dt>
+          <dd class="col-sm-9"><%= loan.due_on.strftime('%b %-d, %Y') %></dd>
+        <% else %>
+          <dt class="col-sm-3 text-secondary">Status detail</dt>
+          <dd class="col-sm-9 text-secondary">On loan</dd>
+        <% end %>
       <% end %>
 
       <% if @book.notes.present? %>

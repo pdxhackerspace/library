@@ -1,5 +1,5 @@
 class LoansController < ApplicationController
-  before_action :require_login
+  before_action :require_admin
 
   def index
     @loans = Loan.includes(:book, :user).recent.limit(100)
