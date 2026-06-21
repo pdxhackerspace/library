@@ -45,7 +45,7 @@ services:
           - pdxhackerspace-library-test-postgres
 
   pdxhackerspace-library-test-redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: pdxhackerspace-library-test-redis
     hostname: pdxhackerspace-library-test-redis
     command: redis-server --save "" --appendonly no

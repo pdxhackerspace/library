@@ -1,11 +1,13 @@
 # PDX Hackerspace Library
 
+[![CI](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml/badge.svg)](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml)
+
 A minimal Rails app for tracking physical books that can be loaned at PDX Hackerspace.
 
 ## Stack
 
 - Rails 8.1, Ruby 4.0.5
-- PostgreSQL 16, Redis 7, Sidekiq 8
+- PostgreSQL 16, Redis 8, Sidekiq 8
 - Bootstrap 5.3, Hotwire (Turbo + Stimulus)
 - Docker Compose for local dev, test, lint, and production-style deployment
 - GitHub Actions CI; Docker images published to GHCR on version tags

@@ -25,7 +25,7 @@ x-web-common: &web-common
 
 services:
   pdxhackerspace-library-prod-redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: pdxhackerspace-library-prod-redis
     hostname: pdxhackerspace-library-prod-redis
     restart: unless-stopped

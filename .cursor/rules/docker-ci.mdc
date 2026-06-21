@@ -37,5 +37,5 @@ Dev/test/lint bind-mount the repo; production uses the built image only.
 
 ## GitHub Actions
 
-- **ci.yml:** Runs on push/PR to `main` and `staging`; parallel `lint` + `test` jobs; caches Bundler, Yarn, built CSS, and RuboCop; Postgres 16 + Redis 7 services
+- **ci.yml:** Runs on push/PR to `main` and `staging`; parallel `lint` + `test` jobs; caches Bundler, Yarn, built CSS, and RuboCop; Postgres 16 + Redis 8 services
 - **release.yml:** Triggered by `v*` tags only; runs tests then builds and pushes Docker image to `ghcr.io` with `:latest`, `:VERSION`, and `:MAJOR` tags
