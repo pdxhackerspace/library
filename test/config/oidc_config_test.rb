@@ -3,7 +3,7 @@ require 'test_helper'
 class OidcConfigTest < ActiveSupport::TestCase
   setup do
     @keys = %w[OIDC_ISSUER OIDC_CLIENT_ID OIDC_CLIENT_SECRET OIDC_REDIRECT_URI APP_BASE_URL]
-    @original = @keys.index_with { |key| ENV[key] }
+    @original = @keys.index_with { |key| ENV.fetch(key, nil) }
   end
 
   teardown do
