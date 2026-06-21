@@ -41,6 +41,38 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'admin deletes book that is not on loan' do
+    book = books(:pragmatic)
+
+    assert_difference 'Book.count', -1 do
+      delete book_path(book)
+    end
+
+    assert_redirected_to books_path
+    assert_equal 'Book removed from the library.', flash[:notice]
+  end
+
+  test 'admin cannot delete book that is on loan' do
+    book = books(:electronics)
+
+    assert_no_difference 'Book.count' do
+      delete book_path(book)
+    end
+
+    assert_redirected_to book_path(book)
+    assert_equal 'Return the book before deleting it.', flash[:alert]
+  end
+
+  test 'edit form delete button is not nested inside main form' do
+    book = books(:pragmatic)
+
+    get edit_book_path(book)
+
+    assert_response :success
+    assert_select 'form.card.border-secondary-subtle form', count: 0
+    assert_select "form[action='#{book_path(book)}'] input[name='_method'][value='delete']", 1
+  end
+
   test 'checkout and return' do
     book = books(:pragmatic)
     site_settings(:default).update!(loan_period_days: 14)

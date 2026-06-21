@@ -200,10 +200,13 @@
     <div class="d-flex gap-2">
       <%= form.submit class: 'btn btn-primary btn-sm' %>
       <%= link_to 'Cancel', book.persisted? ? book : books_path, class: 'btn btn-outline-secondary btn-sm' %>
-      <% if book.persisted? && !book.on_loan? %>
-        <%= button_to 'Delete', book, method: :delete, class: 'btn btn-outline-danger btn-sm ms-auto',
-                      form: { data: { turbo_confirm: 'Remove this book from the library?' } } %>
-      <% end %>
     </div>
+  </div>
+<% end %>
+
+<% if book.persisted? && !book.on_loan? %>
+  <div class="d-flex justify-content-end mt-2">
+    <%= button_to 'Delete', book, method: :delete, class: 'btn btn-outline-danger btn-sm',
+                  form: { data: { turbo_confirm: 'Remove this book from the library?' } } %>
   </div>
 <% end %>
