@@ -29,27 +29,19 @@ module OidcConfig
     ENV['OIDC_REDIRECT_URI'].present? || ENV['APP_BASE_URL'].present?
   end
 
-  def admin_claim_keys
-    claim_keys('OIDC_ADMIN_CLAIMS', %w[is_admin admin])
+  def requested_scopes
+    (%w[openid email profile] + admin_scopes + editor_scopes).uniq
   end
 
-  def editor_claim_keys
-    claim_keys('OIDC_EDITOR_CLAIMS', %w[is_editor editor])
+  def admin_scopes
+    scope_names('OIDC_ADMIN_SCOPES', %w[is_admin])
   end
 
-  def admin_groups
-    group_names('OIDC_ADMIN_GROUPS')
+  def editor_scopes
+    scope_names('OIDC_EDITOR_SCOPES', %w[is_editor])
   end
 
-  def editor_groups
-    group_names('OIDC_EDITOR_GROUPS')
-  end
-
-  def claim_keys(env_key, defaults)
+  def scope_names(env_key, defaults)
     ENV.fetch(env_key, defaults.join(',')).split(',').map(&:strip).compact_blank
-  end
-
-  def group_names(env_key)
-    ENV.fetch(env_key, '').split(',').map(&:strip).compact_blank
   end
 end

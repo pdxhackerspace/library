@@ -13,7 +13,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            name: :oidc,
            issuer: OidcConfig.issuer,
            discovery: true,
-           scope: %w[openid email profile],
+           scope: OidcConfig.requested_scopes,
            response_type: :code,
            pkce: true,
            client_options: {

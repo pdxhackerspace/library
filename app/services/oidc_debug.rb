@@ -65,10 +65,9 @@ module OidcDebug
         client_id: OidcConfig.client_id,
         client_secret: OidcConfig.client_secret.present? ? '[present]' : nil,
         redirect_uri: OidcConfig.redirect_uri,
-        admin_claims: OidcConfig.admin_claim_keys,
-        editor_claims: OidcConfig.editor_claim_keys,
-        admin_groups: OidcConfig.admin_groups,
-        editor_groups: OidcConfig.editor_groups
+        admin_scopes: OidcConfig.admin_scopes,
+        editor_scopes: OidcConfig.editor_scopes,
+        requested_scopes: OidcConfig.requested_scopes
       }
     )
   end

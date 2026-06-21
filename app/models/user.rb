@@ -31,26 +31,12 @@ class User < ApplicationRecord
   def self.sync_roles_from_omniauth!(user, auth)
     user.syncing_roles_from_oidc = true
     user.update!(
-      admin: OidcClaims.admin?(auth),
-      editor: OidcClaims.editor?(auth)
+      admin: OidcScopes.admin?(auth),
+      editor: OidcScopes.editor?(auth)
     )
   ensure
     user.syncing_roles_from_oidc = false
   end
-
-  def self.role_from_omniauth(auth, claim_key)
-    case claim_key
-    when :is_admin then OidcClaims.admin?(auth)
-    when :is_editor then OidcClaims.editor?(auth)
-    else
-      ActiveModel::Type::Boolean.new.cast(OidcClaims.value_for(auth, claim_key)) || false
-    end
-  end
-
-  def self.extract_claim(source, key)
-    OidcClaims.extract(source, key)
-  end
-  private_class_method :extract_claim
 
   def local_account?
     provider.blank?

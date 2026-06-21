@@ -6,7 +6,11 @@ class OmniauthController < ApplicationController
 
     if user
       session[:user_id] = user.id
-      OidcDebug.log("Signed in user #{user.id} (#{user.email}) admin=#{user.admin?} editor=#{user.editor?}")
+      granted_scopes = OidcScopes.granted_scopes(auth).join(' ')
+      OidcDebug.log(
+        "Signed in user #{user.id} (#{user.email}) scopes=#{granted_scopes} " \
+        "admin=#{user.admin?} editor=#{user.editor?}"
+      )
       redirect_to root_path, notice: "Signed in as #{user.name}."
     else
       OidcDebug.log('OIDC sign-in did not return an email address.')
