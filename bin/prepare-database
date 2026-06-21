@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+./bin/rails db:prepare
+
+if [ "${RAILS_ENV:-development}" = "development" ]; then
+  ./bin/rails db:seed
+fi

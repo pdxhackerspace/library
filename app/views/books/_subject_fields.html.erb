@@ -1,0 +1,16 @@
+<% names = Array(local_assigns[:subject_names]).map(&:to_s).map(&:strip).compact_blank %>
+<% names = [''] if names.empty? %>
+
+<% names.each do |name| %>
+  <div class="input-group input-group-sm mb-2" data-book-form-target="subjectField">
+    <input type="text"
+           name="book[subject_names][]"
+           value="<%= name %>"
+           class="form-control form-control-sm"
+           autocomplete="off">
+    <button type="button"
+            class="btn btn-outline-secondary"
+            data-action="book-form#removeSubjectField"
+            aria-label="Remove subject">×</button>
+  </div>
+<% end %>

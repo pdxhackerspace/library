@@ -1,0 +1,38 @@
+<% content_for :title, "Subjects · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h-page-title mb-0">Subjects</h1>
+    <div class="text-13 text-secondary mt-1">
+      <span class="text-body"><%= @subjects.size %></span> subjects ·
+      <span class="text-body"><%= @subjects.sum { |subject| subject.copies_count.to_i } %></span> copies
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover table-compact align-middle">
+    <thead class="text-secondary text-uppercase text-11">
+      <tr>
+        <th>Name</th>
+        <th class="num">Titles</th>
+        <th class="num">Copies</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @subjects.any? %>
+        <% @subjects.each do |subject| %>
+          <tr>
+            <td><%= link_to subject.name, subject, class: 'link-light text-decoration-none' %></td>
+            <td class="num text-secondary"><%= subject.books_count %></td>
+            <td><%= copies_count_cell(subject.copies_count) %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="3" class="text-secondary py-4 text-center">No subjects yet.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

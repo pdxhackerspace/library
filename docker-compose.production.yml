@@ -1,0 +1,72 @@
+# Production-style stack: built image, external Postgres via DATABASE_URL.
+# Migrations run automatically when web or Sidekiq starts (bin/prepare-database).
+# Usage: docker compose -f docker-compose.production.yml up -d
+name: pdxhackerspace-library-prod
+
+x-network: &default-network
+  pdxhackerspace_library_prod:
+    name: pdxhackerspace-library-prod-network
+    driver: bridge
+
+x-web-common: &web-common
+  build:
+    context: .
+    pull: true
+    args:
+      RUBY_VERSION: "4.0.5"
+      APP_VERSION: ${APP_VERSION:-dev}
+  image: pdxhackerspace_library_web:latest
+  env_file:
+    - .env
+  volumes:
+    - pdxhackerspace_library_prod_storage:/rails/storage
+  networks:
+    - pdxhackerspace_library_prod
+
+services:
+  pdxhackerspace-library-prod-redis:
+    image: redis:7-alpine
+    container_name: pdxhackerspace-library-prod-redis
+    hostname: pdxhackerspace-library-prod-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - pdxhackerspace_library_prod_redis_data:/data
+    networks:
+      pdxhackerspace_library_prod:
+        aliases:
+          - pdxhackerspace-library-prod-redis
+
+  pdxhackerspace-library-prod-web:
+    <<: *web-common
+    container_name: pdxhackerspace-library-prod-web
+    hostname: pdxhackerspace-library-prod-web
+    command: ./bin/rails server -b 0.0.0.0 -p 3000
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: production
+      REDIS_URL: ${REDIS_URL:-redis://pdxhackerspace-library-prod-redis:6379/0}
+    depends_on:
+      - pdxhackerspace-library-prod-redis
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+  pdxhackerspace-library-prod-sidekiq:
+    <<: *web-common
+    container_name: pdxhackerspace-library-prod-sidekiq
+    hostname: pdxhackerspace-library-prod-sidekiq
+    command: bundle exec sidekiq
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: production
+      REDIS_URL: ${REDIS_URL:-redis://pdxhackerspace-library-prod-redis:6379/0}
+    depends_on:
+      - pdxhackerspace-library-prod-redis
+networks:
+  <<: *default-network
+
+volumes:
+  pdxhackerspace_library_prod_redis_data:
+    name: pdxhackerspace-library-prod-redis-data
+  pdxhackerspace_library_prod_storage:
+    name: pdxhackerspace-library-prod-storage

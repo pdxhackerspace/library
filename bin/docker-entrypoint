@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+should_prepare_database() {
+  case "$1" in
+  ./bin/rails | bin/rails)
+    [ "$2" = "server" ]
+    ;;
+  bundle)
+    [ "$2" = "exec" ] && [ "$3" = "sidekiq" ]
+    ;;
+  *)
+    false
+    ;;
+  esac
+}
+
+if should_prepare_database "$@"; then
+  ./bin/prepare-database
+fi
+
+exec "$@"

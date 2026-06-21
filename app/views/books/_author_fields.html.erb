@@ -1,0 +1,16 @@
+<% names = Array(local_assigns[:author_names]).map(&:to_s).map(&:strip).compact_blank %>
+<% names = [''] if names.empty? %>
+
+<% names.each do |name| %>
+  <div class="input-group input-group-sm mb-2" data-book-form-target="authorField">
+    <input type="text"
+           name="book[author_names][]"
+           value="<%= name %>"
+           class="form-control form-control-sm"
+           autocomplete="off">
+    <button type="button"
+            class="btn btn-outline-secondary"
+            data-action="book-form#removeAuthorField"
+            aria-label="Remove author">×</button>
+  </div>
+<% end %>

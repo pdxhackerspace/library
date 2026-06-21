@@ -1,0 +1,4 @@
+<nav class="settings-nav mb-3 mb-md-0">
+  <%= link_to 'General', settings_path, class: "settings-nav-item #{'active' unless local_assigns[:active] == :locations}" %>
+  <%= link_to 'Locations', settings_path(anchor: 'locations'), class: "settings-nav-item #{'active' if local_assigns[:active] == :locations}" %>
+</nav>

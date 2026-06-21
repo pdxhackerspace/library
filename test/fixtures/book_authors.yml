@@ -1,0 +1,14 @@
+electronics_charles:
+  book: electronics
+  author: charles_platt
+  position: 0
+
+pragmatic_david:
+  book: pragmatic
+  author: david_thomas
+  position: 0
+
+pragmatic_andrew:
+  book: pragmatic
+  author: andrew_hunt
+  position: 1

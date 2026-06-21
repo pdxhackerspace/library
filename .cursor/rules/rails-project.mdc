@@ -1,0 +1,21 @@
+---
+description: Core Rails project conventions for PDX Hackerspace Library
+alwaysApply: true
+---
+
+# PDX Hackerspace Library Conventions
+
+- **Stack:** Rails 8.1, Ruby 4.0.5, PostgreSQL 16, Redis 7, Sidekiq 8
+- **Frontend:** Bootstrap 5.3 via cssbundling-rails, Stimulus, Turbo, importmap-rails
+- **Auth:** Local admin via `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`); optional OIDC via OmniAuth
+- **Testing:** Minitest with fixtures
+- **Linting:** RuboCop with rubocop-rails — run via `docker compose -f docker-compose.lint.yml run --rm pdxhackerspace-library-lint-rubocop`
+- **Local dev:** `docker-compose.dev.yml`, `docker-compose.test.yml`, `docker-compose.lint.yml`
+- **CI:** GitHub Actions on push/PR; Docker images published to GHCR on `v*` tags only
+
+## Key Patterns
+
+- Service objects in `app/services/` for bootstrapping and integrations
+- Background jobs use Sidekiq with plain queue names (no `queue_name_prefix`)
+- Environment config via dotenv-rails (`.env` files)
+- Canonical version in root `VERSION` file, exposed as `APP_VERSION` in Docker builds

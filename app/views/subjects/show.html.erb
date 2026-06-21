@@ -1,0 +1,12 @@
+<% content_for :title, "#{@subject.name} · Subjects · #{site_name}" %>
+
+<div class="mb-3">
+  <div class="text-secondary small mb-1"><%= link_to 'Subjects', subjects_path, class: 'link-secondary' %></div>
+  <h1 class="h-page-title mb-0"><%= @subject.name %></h1>
+  <div class="text-13 text-secondary mt-1">
+    <span class="text-body"><%= @books.size %></span> title<%= @books.size == 1 ? '' : 's' %> ·
+    <span class="text-body"><%= @copies_count %></span> copies
+  </div>
+</div>
+
+<%= render 'shared/book_list', books: @books %>

@@ -1,0 +1,11 @@
+<% content_for :title, "#{@publisher_name} · Publishers · #{site_name}" %>
+
+<div class="mb-3">
+  <div class="text-secondary small mb-1"><%= link_to 'Publishers', publishers_path, class: 'link-secondary' %></div>
+  <h1 class="h-page-title mb-0"><%= @publisher_name %></h1>
+  <div class="text-13 text-secondary mt-1">
+    <span class="text-body"><%= @books.size %></span> book<%= @books.size == 1 ? '' : 's' %>
+  </div>
+</div>
+
+<%= render 'shared/book_list', books: @books %>

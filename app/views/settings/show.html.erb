@@ -1,0 +1,86 @@
+<% content_for :title, "Settings · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h-page-title mb-0">Settings</h1>
+    <div class="text-13 text-secondary mt-1">Site configuration</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-3">
+    <%= render 'nav' %>
+  </div>
+  <div class="col-md-9">
+    <section id="general" class="mb-4">
+      <h2 class="h-section-label">General</h2>
+      <%= form_with model: @site_setting, url: settings_path, method: :patch, class: 'card border-secondary-subtle' do |form| %>
+        <div class="card-body">
+          <% if @site_setting.errors.any? %>
+            <div class="alert alert-danger py-2 small"><%= @site_setting.errors.full_messages.to_sentence %></div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= form.label :site_name, 'Site name', class: 'form-label' %>
+            <%= form.text_field :site_name, class: 'form-control form-control-sm', required: true %>
+            <div class="form-text">Shown in the navbar and page titles.</div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :loan_period_days, 'Loan period (days)', class: 'form-label' %>
+            <%= form.number_field :loan_period_days, class: 'form-control form-control-sm num', min: 1, required: true %>
+            <div class="form-text">How long checked-out books are due before return.</div>
+          </div>
+
+          <%= form.submit 'Save settings', class: 'btn btn-primary btn-sm' %>
+        </div>
+      <% end %>
+    </section>
+
+    <section id="locations">
+      <h2 class="h-section-label">Locations</h2>
+      <p class="text-13 text-secondary mb-3">Shelf labels linked to books. Removing a location clears it from any assigned books.</p>
+
+      <% if @locations.any? %>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-compact align-middle">
+            <thead class="text-secondary text-uppercase text-11">
+              <tr>
+                <th>Name</th>
+                <th class="num">Books</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @locations.each do |location| %>
+                <tr>
+                  <td>
+                    <%= form_with model: location, url: settings_location_path(location), method: :patch, class: 'd-flex gap-2' do |location_form| %>
+                      <%= location_form.text_field :name, class: 'form-control form-control-sm' %>
+                      <%= location_form.submit 'Save', class: 'btn btn-outline-secondary btn-sm' %>
+                    <% end %>
+                  </td>
+                  <td class="num text-secondary"><%= location.books_count %></td>
+                  <td class="text-end">
+                    <%= button_to 'Remove', settings_location_path(location), method: :delete, class: 'btn btn-outline-danger btn-sm',
+                                  form: { data: { turbo_confirm: 'Remove this location preset?' } } %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-secondary text-13 mb-3">No location presets yet.</p>
+      <% end %>
+
+      <%= form_with model: Location.new, url: settings_locations_path, class: 'd-flex gap-2 align-items-end' do |form| %>
+        <div class="flex-grow-1">
+          <%= form.label :name, 'New location', class: 'form-label' %>
+          <%= form.text_field :name, class: 'form-control form-control-sm', placeholder: 'Shelf C3', required: true %>
+        </div>
+        <%= form.submit 'Add location', class: 'btn btn-outline-secondary btn-sm' %>
+      <% end %>
+    </section>
+  </div>
+</div>

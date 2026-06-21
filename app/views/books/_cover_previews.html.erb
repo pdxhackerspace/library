@@ -1,0 +1,16 @@
+<% cover_urls = Array(local_assigns[:cover_urls]).compact_blank %>
+<% existing_urls = book&.covers_attached? ? book.covers.map { |cover| url_for(cover) } : [] %>
+<% preview_urls = (existing_urls + cover_urls).uniq %>
+
+<% if preview_urls.any? %>
+  <div class="text-secondary small mb-2">Covers</div>
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    <% preview_urls.each do |url| %>
+      <img src="<%= url %>" alt="" class="rounded border border-secondary-subtle" style="height: 96px; width: auto;">
+    <% end %>
+  </div>
+<% end %>
+
+<% cover_urls.each do |url| %>
+  <input type="hidden" name="book[pending_cover_urls][]" value="<%= url %>">
+<% end %>

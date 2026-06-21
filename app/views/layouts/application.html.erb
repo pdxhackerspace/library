@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <title><%= content_for(:title) || site_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, 'data-turbo-track': 'reload' %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg border-bottom border-secondary-subtle mb-3">
+      <div class="container">
+        <%= link_to site_name, root_path, class: 'navbar-brand fw-medium' %>
+
+        <% if logged_in? %>
+          <button class="navbar-toggler btn btn-outline-secondary btn-sm"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#mainNavbar"
+                  aria-controls="mainNavbar"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation">
+            Menu
+          </button>
+
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 text-13">
+              <li class="nav-item"><%= link_to 'Books', books_path, class: 'nav-link' %></li>
+              <li class="nav-item"><%= link_to 'Authors', authors_path, class: 'nav-link' %></li>
+              <li class="nav-item"><%= link_to 'Subjects', subjects_path, class: 'nav-link' %></li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                  Locations
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                  <li><%= link_to 'All locations', locations_path, class: 'dropdown-item' %></li>
+                  <% if @nav_locations.any? %>
+                    <li><hr class="dropdown-divider"></li>
+                    <% @nav_locations.each do |location| %>
+                      <li>
+                        <%= link_to location_path(location), class: 'dropdown-item d-flex justify-content-between gap-3' do %>
+                          <span><%= location.name %></span>
+                          <span class="text-secondary num"><%= location.books_count.to_i %></span>
+                        <% end %>
+                      </li>
+                    <% end %>
+                  <% end %>
+                </ul>
+              </li>
+              <li class="nav-item"><%= link_to 'Loans', loans_path, class: 'nav-link' %></li>
+              <% if current_user.admin? %>
+                <li class="nav-item"><%= link_to 'Users', users_path, class: 'nav-link' %></li>
+                <li class="nav-item"><%= link_to 'Settings', settings_path, class: 'nav-link' %></li>
+              <% end %>
+            </ul>
+
+            <%= form_with url: search_path, method: :get, class: 'd-flex me-lg-3 mb-2 mb-lg-0', role: 'search' do %>
+              <input type="search"
+                     name="q"
+                     value="<%= params[:q] %>"
+                     class="form-control form-control-sm"
+                     placeholder="Search…"
+                     aria-label="Search">
+            <% end %>
+
+            <div class="d-flex align-items-center gap-2 ms-lg-auto">
+              <span class="text-secondary small d-none d-lg-inline"><%= current_user.name %></span>
+              <% if can_manage_books? %>
+                <%= link_to 'Add book', new_book_path, class: 'btn btn-primary btn-sm' %>
+              <% end %>
+              <%= button_to 'Sign out', logout_path, method: :delete, class: 'btn btn-outline-secondary btn-sm' %>
+            </div>
+          </div>
+        <% else %>
+          <div class="ms-auto">
+            <%= link_to 'Sign in', login_path, class: 'btn btn-primary btn-sm' %>
+          </div>
+        <% end %>
+      </div>
+    </nav>
+
+    <main class="container pb-4">
+      <% flash.each do |type, message| %>
+        <div class="alert alert-<%= bootstrap_class_for(type) %> py-2 small" role="alert"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+<% tone = { success: 'success', not_found: 'secondary', error: 'warning' }.fetch(status, 'secondary') %>
+<% message = {
+  success: 'Book info loaded.',
+  not_found: 'No book info found for that ISBN.',
+  error: 'Could not look up book info.'
+}[status] %>
+
+<div id="metadata_lookup_status" class="small mt-2 text-<%= tone %>">
+  <%= message %>
+</div>

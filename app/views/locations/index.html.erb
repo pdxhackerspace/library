@@ -1,0 +1,38 @@
+<% content_for :title, "Locations · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h-page-title mb-0">Locations</h1>
+    <div class="text-13 text-secondary mt-1">
+      <span class="text-body"><%= @locations.size %></span> locations ·
+      <span class="text-body"><%= @locations.sum { |location| location.copies_count.to_i } %></span> copies
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover table-compact align-middle">
+    <thead class="text-secondary text-uppercase text-11">
+      <tr>
+        <th>Name</th>
+        <th class="num">Titles</th>
+        <th class="num">Copies</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @locations.any? %>
+        <% @locations.each do |location| %>
+          <tr>
+            <td><%= link_to location.name, location, class: 'link-light text-decoration-none' %></td>
+            <td class="num text-secondary"><%= location.books_count %></td>
+            <td><%= copies_count_cell(location.copies_count) %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="3" class="text-secondary py-4 text-center">No locations yet.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,3 @@
+default:
+  site_name: PDX Hackerspace Library
+  loan_period_days: 30

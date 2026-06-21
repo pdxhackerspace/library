@@ -1,0 +1,85 @@
+# Test suite with dedicated Postgres + Redis.
+# Usage: docker compose -f docker-compose.test.yml run --rm pdxhackerspace-library-test-runner
+name: pdxhackerspace-library-test
+
+x-network: &default-network
+  pdxhackerspace_library_test:
+    name: pdxhackerspace-library-test-network
+    driver: bridge
+
+x-web-common: &web-common
+  build:
+    context: .
+    dockerfile: Dockerfile.test
+    args:
+      RUBY_VERSION: "4.0.5"
+  image: pdxhackerspace_library_test:latest
+  env_file:
+    - .env
+  volumes:
+    - .:/rails
+    - pdxhackerspace_library_test_bundle:/usr/local/bundle
+  networks:
+    - pdxhackerspace_library_test
+
+services:
+  pdxhackerspace-library-test-postgres:
+    image: postgres:16-alpine
+    container_name: pdxhackerspace-library-test-postgres
+    hostname: pdxhackerspace-library-test-postgres
+    environment:
+      POSTGRES_DB: pdxhackerspace_library_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pdxhackerspace_library_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    networks:
+      pdxhackerspace_library_test:
+        aliases:
+          - pdxhackerspace-library-test-postgres
+
+  pdxhackerspace-library-test-redis:
+    image: redis:7-alpine
+    container_name: pdxhackerspace-library-test-redis
+    hostname: pdxhackerspace-library-test-redis
+    command: redis-server --save "" --appendonly no
+    tmpfs:
+      - /data
+    networks:
+      pdxhackerspace_library_test:
+        aliases:
+          - pdxhackerspace-library-test-redis
+
+  pdxhackerspace-library-test-runner:
+    <<: *web-common
+    container_name: pdxhackerspace-library-test-runner
+    entrypoint: ["bin/docker-test-entrypoint"]
+    command: ["bin/rails", "test"]
+    environment:
+      RAILS_ENV: test
+      DB_HOST: pdxhackerspace-library-test-postgres
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
+      DB_NAME: pdxhackerspace_library_test
+      DATABASE_URL: postgres://postgres:postgres@pdxhackerspace-library-test-postgres:5432/pdxhackerspace_library_test
+      REDIS_URL: redis://pdxhackerspace-library-test-redis:6379/0
+      SKIP_CSS_BUILD: "1"
+    depends_on:
+      pdxhackerspace-library-test-postgres:
+        condition: service_healthy
+      pdxhackerspace-library-test-redis:
+        condition: service_started
+
+networks:
+  <<: *default-network
+
+volumes:
+  pdxhackerspace_library_test_bundle:
+    name: pdxhackerspace-library-test-bundle

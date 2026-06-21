@@ -1,0 +1,97 @@
+<% content_for :title, "#{@book.title} · #{site_name}" %>
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+  <div>
+    <div class="text-secondary small mb-1"><%= link_to 'Books', books_path, class: 'link-secondary' %></div>
+    <h1 class="h3 mb-1"><%= @book.title %></h1>
+    <% if @book.subtitle.present? %>
+      <div class="text-secondary"><%= @book.subtitle %></div>
+    <% end %>
+    <div class="text-secondary"><%= @book.authors_label %></div>
+  </div>
+  <div class="d-flex gap-2">
+    <% if @book.available? %>
+      <%= button_to 'Check out', checkout_book_path(@book), class: 'btn btn-primary btn-sm' %>
+    <% elsif @book.active_loan&.user_id == current_user.id || current_user.admin? %>
+      <%= button_to 'Return', return_book_path(@book), class: 'btn btn-primary btn-sm' %>
+    <% end %>
+    <% if can_manage_books? %>
+      <%= link_to 'Edit', edit_book_path(@book), class: 'btn btn-outline-secondary btn-sm' %>
+    <% end %>
+  </div>
+</div>
+
+<% if @book.covers_attached? %>
+  <div class="mb-3 d-flex flex-wrap gap-2">
+    <% @book.covers.each do |cover| %>
+      <%= image_tag cover, class: 'rounded border border-secondary-subtle', style: 'height: 160px; width: auto;' %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="card border-secondary-subtle">
+  <div class="card-body small">
+    <dl class="row mb-0">
+      <dt class="col-sm-3 text-secondary">Status</dt>
+      <dd class="col-sm-9"><%= book_status_label(@book) %></dd>
+
+      <dt class="col-sm-3 text-secondary">Published</dt>
+      <dd class="col-sm-9"><%= @book.published_on&.strftime('%b %-d, %Y') || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">ISBN</dt>
+      <dd class="col-sm-9"><%= @book.isbn_codes.presence&.join(', ') || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">Publisher</dt>
+      <dd class="col-sm-9"><%= @book.publisher.presence || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">Pages</dt>
+      <dd class="col-sm-9"><%= @book.page_count.presence || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">Language</dt>
+      <dd class="col-sm-9"><%= @book.language.presence || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">Subjects</dt>
+      <dd class="col-sm-9"><%= @book.subjects_label.presence || '—' %></dd>
+
+      <dt class="col-sm-3 text-secondary">Copies</dt>
+      <dd class="col-sm-9"><%= copies_count_cell(@book.copies_count) %></dd>
+
+      <dt class="col-sm-3 text-secondary">Location</dt>
+      <dd class="col-sm-9">
+        <% if @book.location %>
+          <%= link_to @book.location.name, @book.location, class: 'link-light text-decoration-none' %>
+        <% else %>
+          —
+        <% end %>
+      </dd>
+
+      <% if @book.ebook_url.present? %>
+        <dt class="col-sm-3 text-secondary">Ebook</dt>
+        <dd class="col-sm-9"><%= link_to @book.ebook_url, @book.ebook_url, class: 'link-secondary', target: '_blank', rel: 'noopener' %></dd>
+      <% end %>
+
+      <% if @book.description.present? %>
+        <dt class="col-sm-3 text-secondary">Description</dt>
+        <dd class="col-sm-9"><%= simple_format(@book.description) %></dd>
+      <% end %>
+
+      <% if @book.on_loan? %>
+        <% loan = @book.active_loan %>
+        <dt class="col-sm-3 text-secondary">Borrower</dt>
+        <dd class="col-sm-9"><%= loan.user.name %></dd>
+        <dt class="col-sm-3 text-secondary">Due</dt>
+        <dd class="col-sm-9"><%= loan.due_on.strftime('%b %-d, %Y') %></dd>
+      <% end %>
+
+      <% if @book.notes.present? %>
+        <dt class="col-sm-3 text-secondary">Staff notes</dt>
+        <dd class="col-sm-9"><%= simple_format(@book.notes) %></dd>
+      <% end %>
+
+      <% if @book.source_url.present? %>
+        <dt class="col-sm-3 text-secondary">Source</dt>
+        <dd class="col-sm-9"><%= link_to @book.metadata_source&.humanize || 'Reference', @book.source_url, class: 'link-secondary', target: '_blank', rel: 'noopener' %></dd>
+      <% end %>
+    </dl>
+  </div>
+</div>

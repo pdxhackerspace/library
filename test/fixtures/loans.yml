@@ -1,0 +1,5 @@
+active:
+  book: electronics
+  user: member
+  checked_out_at: <%= 3.days.ago %>
+  due_on: <%= 27.days.from_now.to_date %>

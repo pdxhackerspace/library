@@ -1,0 +1,41 @@
+---
+description: Docker and GitHub Actions CI/CD conventions
+globs: "{Dockerfile,docker-compose.*.yml,.github/workflows/**}"
+alwaysApply: false
+---
+
+# Docker and CI
+
+## Docker
+
+- **Base image:** `ruby:4.0.5-slim` with multi-stage build
+- **Node:** Installed via nodenv (Node 24.x) for asset compilation
+- **Yarn:** Use `yarn install --frozen-lockfile`
+- **Assets:** Precompiled with `SECRET_KEY_BASE_DUMMY=1`
+- **Runtime:** Non-root `rails` user; entrypoint at `bin/docker-entrypoint`; migrations via `bin/prepare-database`
+
+## docker-compose (split stacks)
+
+Use `-f docker-compose.<stack>.yml`; each stack sets a top-level `name:` and explicit network/container names prefixed with `pdxhackerspace-library-`.
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.dev.yml` | Local dev: Postgres + Redis + web + Sidekiq (bind-mounted app, `Dockerfile.dev`) |
+| `docker-compose.dev.build.yml` | Same as dev stack but forces rebuild of dev image |
+| `docker-compose.test.yml` | Tests: thin Ruby image, bind-mounted app, cached Bundler volume |
+| `docker-compose.test.build.yml` | Same as test stack but forces rebuild of test image |
+| `docker-compose.lint.yml` | RuboCop: prebuilt image, bind-mounted app; no Postgres |
+| `docker-compose.lint.build.yml` | Same as lint stack but includes `build:` for `Dockerfile.rubocop` |
+| `docker-compose.production.yml` | Production-style: built image, external Postgres via `DATABASE_URL` |
+
+- **Tests:** `docker compose -f docker-compose.test.yml run --rm pdxhackerspace-library-test-runner`
+- **Lint:** `docker compose -f docker-compose.lint.yml run --rm pdxhackerspace-library-lint-rubocop`
+
+Migrations run automatically on web/Sidekiq startup in dev and production (`bin/prepare-database` → `db:prepare`). Development also runs `db:seed`.
+
+Dev/test/lint bind-mount the repo; production uses the built image only.
+
+## GitHub Actions
+
+- **ci.yml:** Runs on push/PR to `main` and `staging`; Postgres 16 + Redis 7 services; RuboCop + `bin/rails test`
+- **release.yml:** Triggered by `v*` tags only; runs tests then builds and pushes Docker image to `ghcr.io` with `:latest`, `:VERSION`, and `:MAJOR` tags

@@ -1,0 +1,21 @@
+admin:
+  email: admin@example.com
+  name: Library Admin
+  password_digest: <%= BCrypt::Password.create('test-password-123') %>
+  admin: true
+  editor: false
+
+member:
+  email: member@example.com
+  name: Member User
+  password_digest: <%= BCrypt::Password.create('test-password-123') %>
+  admin: false
+  editor: false
+
+editor:
+  email: editor@example.com
+  name: Editor User
+  provider: oidc
+  uid: editor-uid
+  admin: false
+  editor: true

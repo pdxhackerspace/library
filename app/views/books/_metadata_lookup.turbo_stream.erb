@@ -1,0 +1,63 @@
+<%= turbo_stream.update 'metadata_lookup_status' do %>
+  <%= render 'books/metadata_lookup_status', status: status %>
+<% end %>
+
+<% if payload[:title].present? %>
+  <%= turbo_stream.update 'book_title' do %>
+    <%= render 'books/metadata_field', field: :title, value: payload[:title], required: true %>
+  <% end %>
+<% end %>
+
+<% if payload[:subtitle].present? %>
+  <%= turbo_stream.update 'book_subtitle' do %>
+    <%= render 'books/metadata_field', field: :subtitle, value: payload[:subtitle] %>
+  <% end %>
+<% end %>
+
+<% if payload[:author_names].present? %>
+  <%= turbo_stream.update 'book_author_names' do %>
+    <%= render 'books/author_fields', author_names: payload[:author_names] %>
+  <% end %>
+<% end %>
+
+<% if payload[:published_on].present? %>
+  <%= turbo_stream.update 'book_published_on' do %>
+    <%= render 'books/metadata_field', field: :published_on, value: payload[:published_on], type: 'date' %>
+  <% end %>
+<% end %>
+
+<% if payload[:description].present? %>
+  <%= turbo_stream.update 'book_description' do %>
+    <%= render 'books/metadata_field', field: :description, value: payload[:description], type: 'textarea', rows: 5 %>
+  <% end %>
+<% end %>
+
+<% if payload[:publisher].present? %>
+  <%= turbo_stream.update 'book_publisher' do %>
+    <%= render 'books/metadata_field', field: :publisher, value: payload[:publisher] %>
+  <% end %>
+<% end %>
+
+<% if payload[:page_count].present? %>
+  <%= turbo_stream.update 'book_page_count' do %>
+    <%= render 'books/metadata_field', field: :page_count, value: payload[:page_count], type: 'number' %>
+  <% end %>
+<% end %>
+
+<% if payload[:language].present? %>
+  <%= turbo_stream.update 'book_language' do %>
+    <%= render 'books/metadata_field', field: :language, value: payload[:language] %>
+  <% end %>
+<% end %>
+
+<% if payload[:subject_names].present? %>
+  <%= turbo_stream.update 'book_subjects' do %>
+    <%= render 'books/subject_fields', subject_names: payload[:subject_names] %>
+  <% end %>
+<% end %>
+
+<% if payload[:cover_urls].present? %>
+  <%= turbo_stream.update 'book_cover_previews' do %>
+    <%= render 'books/cover_previews', cover_urls: payload[:cover_urls], book: book %>
+  <% end %>
+<% end %>

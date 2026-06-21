@@ -1,0 +1,21 @@
+name: pdxhackerspace-library-dev
+
+include:
+  - docker-compose.dev.yml
+
+services:
+  pdxhackerspace-library-dev-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      pull: true
+      args:
+        RUBY_VERSION: "4.0.5"
+
+  pdxhackerspace-library-dev-sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      pull: true
+      args:
+        RUBY_VERSION: "4.0.5"

@@ -1,0 +1,55 @@
+<% content_for :title, "#{@user.name} · Users · #{site_name}" %>
+
+<div class="mb-3">
+  <div class="text-secondary small mb-1"><%= link_to 'Users', users_path, class: 'link-secondary' %></div>
+  <h1 class="h-page-title mb-0"><%= @user.name %></h1>
+  <div class="text-13 text-secondary mt-1"><%= @user.email %></div>
+</div>
+
+<% if @active_loans.any? %>
+  <h2 class="h-section-label">Active loans</h2>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm table-compact align-middle">
+      <thead class="text-secondary text-uppercase text-11">
+        <tr>
+          <th>Book</th>
+          <th>Due</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @active_loans.each do |loan| %>
+          <tr>
+            <td><%= link_to loan.book.title, loan.book, class: 'link-light text-decoration-none' %></td>
+            <td class="text-secondary"><%= loan.due_on.strftime('%b %-d, %Y') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @recent_loans.any? %>
+  <h2 class="h-section-label">Recent returns</h2>
+  <div class="table-responsive">
+    <table class="table table-sm table-compact align-middle">
+      <thead class="text-secondary text-uppercase text-11">
+        <tr>
+          <th>Book</th>
+          <th>Returned</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_loans.each do |loan| %>
+          <tr>
+            <td><%= link_to loan.book.title, loan.book, class: 'link-light text-decoration-none' %></td>
+            <td class="text-secondary"><%= loan.returned_at.strftime('%b %-d, %Y') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<% if @active_loans.empty? && @recent_loans.empty? %>
+  <p class="text-secondary text-13 mb-0">No loan history yet.</p>
+<% end %>

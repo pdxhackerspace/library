@@ -1,0 +1,104 @@
+# Local development: Rails + Sidekiq + Postgres + Redis.
+# Migrations run automatically when web or Sidekiq starts (bin/prepare-database).
+# Usage: docker compose -f docker-compose.dev.yml up --build
+#        docker compose -f docker-compose.dev.build.yml build
+name: pdxhackerspace-library-dev
+
+x-network: &default-network
+  pdxhackerspace_library_dev:
+    name: pdxhackerspace-library-dev-network
+    driver: bridge
+
+x-web-common: &web-common
+  build:
+    context: .
+    dockerfile: Dockerfile.dev
+    pull: true
+    args:
+      RUBY_VERSION: "4.0.5"
+  image: pdxhackerspace_library_dev:latest
+  env_file:
+    - .env
+  volumes:
+    - .:/rails
+    - pdxhackerspace_library_dev_bundle:/usr/local/bundle
+  networks:
+    - pdxhackerspace_library_dev
+
+x-db-env-dev: &db-env-dev
+  RAILS_ENV: development
+  BUNDLE_DEPLOYMENT: ""
+  BUNDLE_WITHOUT: ""
+  DB_HOST: pdxhackerspace-library-dev-postgres
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_PORT: 5432
+  DB_NAME: pdxhackerspace_library_development
+  DATABASE_URL: postgres://postgres:postgres@pdxhackerspace-library-dev-postgres:5432/pdxhackerspace_library_development
+  REDIS_URL: redis://pdxhackerspace-library-dev-redis:6379/0
+  APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+
+services:
+  pdxhackerspace-library-dev-postgres:
+    image: postgres:16-alpine
+    container_name: pdxhackerspace-library-dev-postgres
+    hostname: pdxhackerspace-library-dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pdxhackerspace_library_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pdxhackerspace_library_dev_postgres_data:/var/lib/postgresql/data
+    networks:
+      pdxhackerspace_library_dev:
+        aliases:
+          - pdxhackerspace-library-dev-postgres
+
+  pdxhackerspace-library-dev-redis:
+    image: redis:7-alpine
+    container_name: pdxhackerspace-library-dev-redis
+    hostname: pdxhackerspace-library-dev-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - pdxhackerspace_library_dev_redis_data:/data
+    networks:
+      pdxhackerspace_library_dev:
+        aliases:
+          - pdxhackerspace-library-dev-redis
+
+  pdxhackerspace-library-dev-web:
+    <<: *web-common
+    container_name: pdxhackerspace-library-dev-web
+    hostname: pdxhackerspace-library-dev-web
+    command: bash -c "bundle install && yarn install && yarn build:css && ./bin/prepare-database && exec ./bin/rails server -b 0.0.0.0 -p 3000"
+    environment:
+      <<: *db-env-dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - pdxhackerspace-library-dev-postgres
+      - pdxhackerspace-library-dev-redis
+
+  pdxhackerspace-library-dev-sidekiq:
+    <<: *web-common
+    container_name: pdxhackerspace-library-dev-sidekiq
+    hostname: pdxhackerspace-library-dev-sidekiq
+    command: bash -c "bundle install && ./bin/prepare-database && exec bundle exec sidekiq"
+    environment:
+      <<: *db-env-dev
+    depends_on:
+      - pdxhackerspace-library-dev-postgres
+      - pdxhackerspace-library-dev-redis
+
+networks:
+  <<: *default-network
+
+volumes:
+  pdxhackerspace_library_dev_postgres_data:
+    name: pdxhackerspace-library-dev-postgres-data
+  pdxhackerspace_library_dev_redis_data:
+    name: pdxhackerspace-library-dev-redis-data
+  pdxhackerspace_library_dev_bundle:
+    name: pdxhackerspace-library-dev-bundle

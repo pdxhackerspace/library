@@ -1,0 +1,13 @@
+name: pdxhackerspace-library-test
+
+include:
+  - docker-compose.test.yml
+
+services:
+  pdxhackerspace-library-test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      pull: true
+      args:
+        RUBY_VERSION: "4.0.5"

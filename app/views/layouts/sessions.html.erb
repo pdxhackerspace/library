@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <title>Sign in · <%= site_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, 'data-turbo-track': 'reload' %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="bg-body-tertiary d-flex align-items-center min-vh-100">
+    <main class="container" style="max-width: 420px;">
+      <h1 class="h3 mb-1"><%= site_name %></h1>
+      <p class="text-secondary small mb-4">Sign in to browse and loan physical books.</p>
+
+      <% flash.each do |type, message| %>
+        <div class="alert alert-<%= bootstrap_class_for(type) %> py-2 small" role="alert"><%= message %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

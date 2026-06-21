@@ -1,0 +1,12 @@
+# RuboCop only (no database required).
+# Usage: docker compose -f docker-compose.lint.yml run --rm pdxhackerspace-library-lint-rubocop
+name: pdxhackerspace-library-lint
+
+services:
+  pdxhackerspace-library-lint-rubocop:
+    image: pdxhackerspace_library_rubocop:latest
+    container_name: pdxhackerspace-library-lint-rubocop
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    entrypoint: ["rubocop"]

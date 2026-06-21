@@ -1,0 +1,34 @@
+<% content_for :title, "Loans · #{site_name}" %>
+
+<h1 class="h3 mb-3">Recent loans</h1>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover align-middle">
+    <thead class="text-secondary text-uppercase" style="font-size: 11px; letter-spacing: 0.04em;">
+      <tr>
+        <th>Book</th>
+        <th>Borrower</th>
+        <th>Checked out</th>
+        <th>Due</th>
+        <th>Returned</th>
+      </tr>
+    </thead>
+    <tbody style="font-size: 13px;">
+      <% if @loans.any? %>
+        <% @loans.each do |loan| %>
+        <tr>
+          <td><%= link_to loan.book.title, loan.book, class: 'link-light text-decoration-none' %></td>
+          <td class="text-secondary"><%= loan.user.name %></td>
+          <td class="text-secondary"><%= loan.checked_out_at.strftime('%b %-d, %Y') %></td>
+          <td class="<%= loan.overdue? ? 'text-warning' : 'text-secondary' %>"><%= loan.due_on.strftime('%b %-d, %Y') %></td>
+          <td class="text-secondary"><%= loan.returned_at&.strftime('%b %-d, %Y') || '—' %></td>
+        </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="5" class="text-secondary py-4 text-center">No loans yet.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

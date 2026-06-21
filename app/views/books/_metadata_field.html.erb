@@ -1,0 +1,13 @@
+<% field = local_assigns[:field] %>
+<% value = local_assigns[:value].to_s %>
+<% type = local_assigns[:type] || 'text' %>
+<% rows = local_assigns[:rows] %>
+<% required = local_assigns[:required] %>
+
+<div id="book_<%= field %>">
+  <% if type == 'textarea' %>
+    <textarea name="book[<%= field %>]" rows="<%= rows || 3 %>" class="form-control form-control-sm" <%= 'required' if required %>><%= value %></textarea>
+  <% else %>
+    <input type="<%= type %>" name="book[<%= field %>]" value="<%= value %>" class="form-control form-control-sm" <%= 'required' if required %>>
+  <% end %>
+</div>

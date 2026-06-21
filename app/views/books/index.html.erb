@@ -1,0 +1,69 @@
+<% content_for :title, "Books · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h3 mb-0">Books</h1>
+    <div class="text-secondary small mt-1">
+      <span class="text-body"><%= @books.size %></span> titles ·
+      <span class="text-body"><%= @books.sum(&:copies_count) %></span> copies ·
+      <span class="text-success"><%= @books.count(&:available?) %></span> available ·
+      <span class="text-warning"><%= @active_loans.size %></span> on loan
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover align-middle">
+    <thead class="text-secondary text-uppercase" style="font-size: 11px; letter-spacing: 0.04em;">
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Location</th>
+        <th class="num">Copies</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody style="font-size: 13px;">
+      <% if @books.any? %>
+        <% @books.each do |book| %>
+        <tr>
+          <td>
+            <%= link_to book.title, book, class: 'link-light text-decoration-none' %>
+            <% if book.ebook_url.present? %>
+              <span class="ms-2"><%= ebook_link_for(book) %></span>
+            <% end %>
+          </td>
+          <td class="text-secondary"><%= book.authors_label %></td>
+          <td class="text-secondary">
+            <% if book.location %>
+              <%= link_to book.location.name, book.location, class: 'link-secondary text-decoration-none' %>
+            <% else %>
+              —
+            <% end %>
+          </td>
+          <td><%= copies_count_cell(book.copies_count) %></td>
+          <td><%= book_status_label(book) %></td>
+          <td class="text-end">
+            <% if book.available? %>
+              <%= button_to 'Check out', checkout_book_path(book), class: 'btn btn-outline-secondary btn-sm' %>
+            <% else %>
+              <% loan = book.active_loan %>
+              <span class="text-secondary small">
+                <%= loan.user.name %>
+                <% if loan.user_id == current_user.id || current_user.admin? %>
+                  · <%= button_to 'Return', return_book_path(book), class: 'btn btn-outline-secondary btn-sm d-inline-block ms-1' %>
+                <% end %>
+              </span>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="6" class="text-secondary py-4 text-center">No books yet.<% if can_manage_books? %> <%= link_to 'Add one', new_book_path, class: 'link-light' %>.<% end %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

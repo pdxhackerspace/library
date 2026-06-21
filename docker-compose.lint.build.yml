@@ -1,0 +1,16 @@
+name: pdxhackerspace-library-lint
+
+include:
+  - docker-compose.lint.yml
+
+services:
+  pdxhackerspace-library-lint-rubocop:
+    image: pdxhackerspace_library_rubocop:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.rubocop
+      pull: true
+      args:
+        RUBY_VERSION: "4.0.5"
+        RUBOCOP_VERSION: "1.86.0"
+        RUBOCOP_RAILS_VERSION: "2.35.0"

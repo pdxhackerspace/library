@@ -1,0 +1,20 @@
+{
+  "ISBN:9780201616224": {
+    "title": "The Pragmatic Programmer",
+    "url": "https://openlibrary.org/books/OL7934996M/The_Pragmatic_programmer",
+    "authors": [
+      { "name": "David Thomas" },
+      { "name": "Andrew Hunt" }
+    ],
+    "publish_date": "1999",
+    "publishers": ["Addison-Wesley"],
+    "number_of_pages": 321,
+    "subjects": ["Computer programming", "Programming"],
+    "cover": {
+      "small": "https://covers.openlibrary.org/b/id/123-S.jpg",
+      "medium": "https://covers.openlibrary.org/b/id/123-M.jpg",
+      "large": "https://covers.openlibrary.org/b/id/123-L.jpg"
+    },
+    "description": "A classic book about pragmatic software development."
+  }
+}

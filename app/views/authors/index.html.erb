@@ -1,0 +1,38 @@
+<% content_for :title, "Authors · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h-page-title mb-0">Authors</h1>
+    <div class="text-13 text-secondary mt-1">
+      <span class="text-body"><%= @authors.size %></span> authors ·
+      <span class="text-body"><%= @authors.sum { |author| author.copies_count.to_i } %></span> copies
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover table-compact align-middle">
+    <thead class="text-secondary text-uppercase text-11">
+      <tr>
+        <th>Name</th>
+        <th class="num">Titles</th>
+        <th class="num">Copies</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @authors.any? %>
+        <% @authors.each do |author| %>
+          <tr>
+            <td><%= link_to author.name, author, class: 'link-light text-decoration-none' %></td>
+            <td class="num text-secondary"><%= author.books_count %></td>
+            <td><%= copies_count_cell(author.copies_count) %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="3" class="text-secondary py-4 text-center">No authors yet.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

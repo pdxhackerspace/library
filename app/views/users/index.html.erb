@@ -1,0 +1,31 @@
+<% content_for :title, "Users · #{site_name}" %>
+
+<div class="d-flex align-items-end justify-content-between mb-3">
+  <div>
+    <h1 class="h-page-title mb-0">Users</h1>
+    <div class="text-13 text-secondary mt-1">
+      <span class="text-body"><%= @users.size %></span> total
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover table-compact align-middle">
+    <thead class="text-secondary text-uppercase text-11">
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th class="num">Loans</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= link_to user.name, user, class: 'link-light text-decoration-none' %></td>
+          <td class="text-secondary"><%= user.email %></td>
+          <td class="num text-secondary"><%= user.loans_count %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
