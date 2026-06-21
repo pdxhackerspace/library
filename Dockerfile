@@ -21,13 +21,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install --no-install-recommends -y build-essential curl git libpq-dev libvips node-gyp pkg-config python-is-python3 libyaml-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-ARG NODE_VERSION=24.9.0
-ARG YARN_VERSION=latest
-ENV PATH=/usr/local/node/bin:$PATH
-RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
-    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
-    npm install -g yarn@$YARN_VERSION && \
-    rm -rf /tmp/node-build-master
+COPY --from=node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:24-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack && \
+    corepack enable && \
+    corepack prepare yarn@stable --activate
 
 COPY Gemfile Gemfile.lock ./
 RUN --mount=type=cache,target=/root/.bundle/cache \
@@ -37,9 +35,11 @@ RUN --mount=type=cache,target=/root/.bundle/cache \
     bundle exec bootsnap precompile --gemfile
 
 COPY package.json yarn.lock ./
+COPY app/assets/stylesheets app/assets/stylesheets
 RUN --mount=type=cache,target=/root/.yarn \
     --mount=type=cache,target=/root/.cache \
-    yarn install --frozen-lockfile
+    yarn install --frozen-lockfile && \
+    yarn build:css
 
 COPY . .
 

@@ -1,0 +1,11 @@
+name: Cache RuboCop
+description: Restore and save RuboCop offense cache
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v4
+      with:
+        path: tmp/rubocop-cache
+        key: rubocop-${{ runner.os }}-${{ hashFiles('.rubocop.yml', '**/*.rb') }}
+        restore-keys: |
+          rubocop-${{ runner.os }}-

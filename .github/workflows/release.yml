@@ -13,6 +13,17 @@ permissions:
   contents: read
   packages: write
 
+env:
+  RAILS_ENV: test
+  DB_HOST: localhost
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_PORT: 5432
+  DB_NAME: pdxhackerspace_library_test
+  REDIS_URL: redis://localhost:6379/0
+  ADMIN_EMAIL: admin@example.com
+  ADMIN_PASSWORD: test-password-123
+
 jobs:
   preflight:
     runs-on: ubuntu-latest
@@ -63,34 +74,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    env:
-      RAILS_ENV: test
-      DB_HOST: localhost
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_PORT: 5432
-      DB_NAME: pdxhackerspace_library_test
-      REDIS_URL: redis://localhost:6379/0
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: test-password-123
-
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '4.0.5'
-          bundler-cache: true
+      - name: Set up Ruby
+        uses: ./.github/actions/setup-ruby-app
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'yarn'
+      - name: Set up frontend assets
+        uses: ./.github/actions/setup-frontend
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn build:css
-      - run: bin/rails db:test:prepare
-      - run: bin/rails test
+      - name: Prepare database
+        run: bin/rails db:test:prepare
+
+      - name: Run tests
+        run: bin/rails test
 
   build-and-push:
     needs: [preflight, test]
@@ -124,5 +121,5 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=library-prod
+          cache-to: type=gha,mode=max,scope=library-prod

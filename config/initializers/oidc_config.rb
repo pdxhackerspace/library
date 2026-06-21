@@ -1,10 +1,6 @@
 module OidcConfig
   module_function
 
-  def enabled?
-    ActiveModel::Type::Boolean.new.cast(ENV.fetch('OIDC_ENABLED', 'false'))
-  end
-
   def issuer
     ENV.fetch('OIDC_ISSUER', nil)
   end
@@ -23,6 +19,13 @@ module OidcConfig
   end
 
   def configured?
-    enabled? && issuer.present? && client_id.present? && client_secret.present?
+    issuer.present? &&
+      client_id.present? &&
+      client_secret.present? &&
+      redirect_configured?
+  end
+
+  def redirect_configured?
+    ENV['OIDC_REDIRECT_URI'].present? || ENV['APP_BASE_URL'].present?
   end
 end

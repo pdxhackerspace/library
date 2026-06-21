@@ -1,0 +1,26 @@
+name: Setup frontend assets
+description: Cache and build CSS when needed
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: yarn
+
+    - uses: actions/cache@v4
+      id: frontend-cache
+      with:
+        path: |
+          node_modules
+          app/assets/builds
+        key: frontend-${{ runner.os }}-${{ hashFiles('yarn.lock', 'package.json', 'app/assets/stylesheets/**') }}
+        restore-keys: |
+          frontend-${{ runner.os }}-
+
+    - name: Install JS dependencies and build CSS
+      if: steps.frontend-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        yarn install --frozen-lockfile
+        yarn build:css

@@ -8,6 +8,7 @@ plugins:
 AllCops:
   NewCops: enable
   TargetRubyVersion: 4.0
+  CacheRootDirectory: tmp/rubocop-cache
   Exclude:
     - 'db/schema.rb'
     - 'db/migrate/**/*'
