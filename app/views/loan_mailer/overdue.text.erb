@@ -1,0 +1,6 @@
+Hi <%= @user.name %>,
+
+"<%= @book.title %>" is <%= @days_overdue %> <%= 'day'.pluralize(@days_overdue) %> overdue at <%= @site_name %>.
+Please return it as soon as you can.
+
+View book: <%= book_url(@book) %>

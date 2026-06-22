@@ -30,7 +30,7 @@ module OidcConfig
   end
 
   def requested_scopes
-    (%w[openid email profile] + admin_scopes + editor_scopes).uniq
+    (%w[openid email profile slack] + admin_scopes + editor_scopes).uniq
   end
 
   def admin_scopes

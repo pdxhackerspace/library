@@ -12,4 +12,11 @@ class SiteSettingTest < ActiveSupport::TestCase
 
     assert_not setting.valid?
   end
+
+  test 'validates overdue nag interval is positive' do
+    setting = SiteSetting.instance
+    setting.overdue_nag_interval_days = 0
+
+    assert_not setting.valid?
+  end
 end

@@ -1,0 +1,9 @@
+loan_due_reminder:
+  cron: "0 9 * * *"
+  class: "Loans::DueReminderJob"
+  active_job: true
+
+loan_overdue_nag:
+  cron: "0 9 * * *"
+  class: "Loans::OverdueNagJob"
+  active_job: true

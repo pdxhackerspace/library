@@ -1,0 +1,10 @@
+<p>Hi <%= @user.name %>,</p>
+
+<p>
+  <strong><%= @book.title %></strong> is due today at <%= @site_name %>.
+  Please return it when you can.
+</p>
+
+<p>
+  <%= link_to 'View book', book_url(@book) %>
+</p>

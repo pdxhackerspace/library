@@ -58,8 +58,10 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     book = books(:pragmatic)
     site_settings(:default).update!(loan_period_days: 14)
 
-    assert_difference 'Loan.count', 1 do
-      post checkout_book_path(book)
+    assert_enqueued_with(job: Loans::NotifyBorrowedJob) do
+      assert_difference 'Loan.count', 1 do
+        post checkout_book_path(book)
+      end
     end
     assert_redirected_to book_path(book)
     assert_not book.reload.available?

@@ -25,17 +25,37 @@ module OidcTestHelper
     restore_env(original)
   end
 
-  def omniauth_auth(scopes: %w[openid email profile], uid: '123', email: 'oidc@example.com', raw_info: {},
-                    id_token_payload: nil)
-    info = Struct.new(:email, :name).new(email, 'OIDC User')
-    extra = Struct.new(:raw_info).new(raw_info)
-    payload = id_token_payload || {}
-    credentials = Struct.new(:id_token, :scope).new(
-      payload.present? ? encode_jwt(payload) : nil,
-      Array(scopes).join(' ')
-    )
+  def omniauth_auth(**options)
+    auth_options = normalize_omniauth_options(options)
+    info = Struct.new(:email, :name).new(auth_options[:email], 'OIDC User')
+    extra = Struct.new(:raw_info).new(auth_options[:raw_info])
+    credentials = build_omniauth_credentials(auth_options)
 
-    Struct.new(:provider, :uid, :info, :extra, :credentials).new('oidc', uid, info, extra, credentials)
+    Struct.new(:provider, :uid, :info, :extra, :credentials).new(
+      'oidc', auth_options[:uid], info, extra, credentials
+    )
+  end
+
+  def normalize_omniauth_options(options)
+    raw_info = options.fetch(:raw_info, {}).dup
+    slack = options[:slack]
+    raw_info['slack'] = slack if slack.present?
+
+    {
+      scopes: options.fetch(:scopes, %w[openid email profile]),
+      uid: options.fetch(:uid, '123'),
+      email: options.fetch(:email, 'oidc@example.com'),
+      raw_info: raw_info,
+      id_token_payload: options[:id_token_payload]
+    }
+  end
+
+  def build_omniauth_credentials(auth_options)
+    payload = auth_options[:id_token_payload] || {}
+    Struct.new(:id_token, :scope).new(
+      payload.present? ? encode_jwt(payload) : nil,
+      Array(auth_options[:scopes]).join(' ')
+    )
   end
 
   def encode_jwt(payload)

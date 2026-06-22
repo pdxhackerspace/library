@@ -23,9 +23,25 @@ class User < ApplicationRecord
     user = find_or_initialize_by(provider: auth.provider, uid: auth.uid)
     user.email = email
     user.name = auth.info.name.presence || email.split('@').first
+    sync_slack_from_omniauth!(user, auth)
     user.save!
     sync_roles_from_omniauth!(user, auth)
     user
+  end
+
+  def self.sync_slack_from_omniauth!(user, auth)
+    slack = OidcProfile.slack_info(auth)
+    if slack
+      user.slack_uid = slack[:uid]
+      user.slack_name = slack[:name]
+    else
+      user.slack_uid = nil
+      user.slack_name = nil
+    end
+  end
+
+  def slack_linked?
+    slack_uid.present?
   end
 
   def self.sync_roles_from_omniauth!(user, auth)

@@ -59,6 +59,10 @@ class OidcConfigTest < ActiveSupport::TestCase
     assert_not OidcConfig.configured?
   end
 
+  test 'requested scopes include slack' do
+    assert_includes OidcConfig.requested_scopes, 'slack'
+  end
+
   private
 
   def assign_oidc_env(issuer:, client_id:, client_secret:, app_base_url: nil, redirect_uri: nil)

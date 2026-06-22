@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_21_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_22_100200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -105,8 +105,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_21_200000) do
     t.bigint "book_id", null: false
     t.datetime "checked_out_at", null: false
     t.datetime "created_at", null: false
+    t.date "due_notified_on"
     t.date "due_on", null: false
     t.text "notes"
+    t.datetime "overdue_nagged_at"
     t.datetime "returned_at"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -127,6 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_21_200000) do
   create_table "site_settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "loan_period_days", default: 30, null: false
+    t.integer "overdue_nag_interval_days", default: 3, null: false
     t.string "site_name", default: "PDX Hackerspace Library", null: false
     t.datetime "updated_at", null: false
   end
@@ -146,6 +149,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_21_200000) do
     t.string "name", null: false
     t.string "password_digest"
     t.string "provider"
+    t.string "slack_name"
+    t.string "slack_uid"
     t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
