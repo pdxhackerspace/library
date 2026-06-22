@@ -9,6 +9,6 @@
     <% if local_assigns[:subtitle].present? %>
       <div class="text-13 text-secondary mb-2"><%= subtitle %></div>
     <% end %>
-    <%= render 'shared/book_list', books: books, link_locations: local_assigns.fetch(:link_locations, logged_in?) %>
+    <%= render 'shared/book_shelf', books: books %>
   </section>
 <% end %>

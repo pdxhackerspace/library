@@ -11,15 +11,19 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_match 'Recently added', response.body
       assert_match 'Popular', response.body
       assert_match 'Discover', response.body
+      assert_match 'book-shelf', response.body
+      assert_no_match 'sign in to check out books', response.body
     end
   end
 
-  test 'shows all books link for logged in user' do
+  test 'shows same shelf layout for logged in user' do
     sign_in_as(users(:admin))
 
     get root_path
 
     assert_response :success
     assert_match 'All books', response.body
+    assert_match 'book-shelf', response.body
+    assert_no_match 'sign in to check out books', response.body
   end
 end

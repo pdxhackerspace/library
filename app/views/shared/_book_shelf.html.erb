@@ -1,0 +1,20 @@
+<% if books.any? %>
+  <div class="book-shelf">
+    <div class="book-shelf__row">
+      <% books.each do |book| %>
+        <%= link_to book, class: 'book-shelf__item text-decoration-none' do %>
+          <div class="book-shelf__spine">
+            <%= book_cover_tag(book, size: :shelf) %>
+            <% unless book.available? %>
+              <%= book_status_dot(book) %>
+            <% end %>
+          </div>
+          <div class="book-shelf__title" title="<%= book.title %>"><%= book.title %></div>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="book-shelf__board" aria-hidden="true"></div>
+  </div>
+<% else %>
+  <div class="text-secondary text-13 py-3">No books found.</div>
+<% end %>
