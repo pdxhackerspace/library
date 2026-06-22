@@ -4,14 +4,11 @@
   <div>
     <h1 class="h-page-title mb-0"><%= site_name %></h1>
     <div class="text-13 text-secondary mt-1">
-      Browse the library catalog<% unless logged_in? %> — sign in to check out books<% end %>
+      Browse the library catalog
     </div>
   </div>
   <div class="d-flex gap-2">
     <%= link_to 'All books', books_path, class: 'btn btn-outline-secondary btn-sm' %>
-    <% unless logged_in? %>
-      <%= link_to 'Sign in', login_path, class: 'btn btn-primary btn-sm' %>
-    <% end %>
   </div>
 </div>
 
@@ -34,6 +31,5 @@
   <%= render 'shared/home_book_section',
              title: @featured_subject.name,
              subtitle: 'Random subject',
-             books: @subject_books,
-             link_locations: logged_in? %>
+             books: @subject_books %>
 <% end %>

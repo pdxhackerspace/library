@@ -23,6 +23,8 @@ class GuestAccessTest < ActionDispatch::IntegrationTest
       get_from_ip book_path(books(:pragmatic)), '192.168.1.50'
       assert_response :success
       assert_match 'The Pragmatic Programmer', response.body
+      assert_match 'book-detail', response.body
+      assert_match 'book-cover--hero', response.body
       assert_match 'Sign in to check out', response.body
     end
   end
