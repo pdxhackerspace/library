@@ -5,7 +5,15 @@ class ApplicationController < ActionController::Base
 
   before_action :load_nav_locations, if: :logged_in?
 
-  helper_method :site_name, :site_setting
+  helper_method :site_name, :site_setting, :app_version, :github_repo_url
+
+  def app_version
+    AppInfo.version
+  end
+
+  def github_repo_url
+    AppInfo.github_repo_url
+  end
 
   def site_name
     SiteSetting.instance.site_name

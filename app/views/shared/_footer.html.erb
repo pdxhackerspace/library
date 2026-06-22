@@ -1,0 +1,8 @@
+<footer class="border-top border-secondary-subtle py-3 mt-4">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 text-12 text-secondary">
+    <span>v<%= app_version %></span>
+    <% if github_repo_url.present? %>
+      <%= link_to 'GitHub', github_repo_url, class: 'link-secondary', target: '_blank', rel: 'noopener' %>
+    <% end %>
+  </div>
+</footer>

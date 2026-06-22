@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   resources :loans, only: [:index, :show]
 
   resource :settings, only: %i[show update] do
+    get :books_csv, on: :member
     resources :locations, only: %i[create update destroy], module: :settings
   end
 

@@ -13,6 +13,7 @@ gem 'stimulus-rails'
 gem 'turbo-rails'
 
 gem 'bcrypt', '~> 3.1'
+gem 'csv'
 gem 'dotenv-rails'
 gem 'faraday', '~> 2.14'
 gem 'faraday-follow_redirects', '~> 0.5'

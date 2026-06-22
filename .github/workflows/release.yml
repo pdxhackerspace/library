@@ -117,6 +117,7 @@ jobs:
           provenance: false
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
+            GITHUB_REPOSITORY=${{ github.repository }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }}

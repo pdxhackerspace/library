@@ -17,6 +17,13 @@ class SettingsController < ApplicationController
     end
   end
 
+  def books_csv
+    send_data Books::ExportCsv.call,
+              filename: "books-#{Date.current.iso8601}.csv",
+              type: 'text/csv; charset=utf-8',
+              disposition: 'attachment'
+  end
+
   private
 
   def site_setting_params

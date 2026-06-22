@@ -48,10 +48,11 @@ class BooksController < ApplicationController
 
   def destroy
     if @book.on_loan?
-      redirect_to @book, alert: 'Return the book before deleting it.'
+      redirect_to @book, alert: 'Return the book before deleting it.', status: :see_other
     else
+      title = @book.title
       @book.destroy!
-      redirect_to books_path, notice: 'Book removed from the library.'
+      redirect_to books_path, notice: "\"#{title}\" removed from the library.", status: :see_other
     end
   end
 
@@ -103,10 +104,19 @@ class BooksController < ApplicationController
     @lookup_token = params[:lookup_token] if params[:lookup_token].present?
 
     if Books::Save.new(@book, book_params).call
-      redirect_to @book, notice: create_redirect ? 'Book added to the library.' : 'Book updated.'
+      redirect_after_save(create_redirect:)
     else
       prepare_form_extras
       render(create_redirect ? :new : :edit, status: :unprocessable_content)
+    end
+  end
+
+  def redirect_after_save(create_redirect:)
+    notice = create_redirect ? 'Book added to the library.' : 'Book updated.'
+    if create_redirect && params[:add_another].present?
+      redirect_to new_book_path, notice: notice
+    else
+      redirect_to @book, notice: notice
     end
   end
 end

@@ -101,6 +101,7 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
+    csv (3.3.5)
     date (3.5.1)
     debug (1.11.1)
       irb (~> 1.10)
@@ -407,6 +408,7 @@ DEPENDENCIES
   bundler-audit
   connection_pool (< 4.0)
   cssbundling-rails
+  csv
   debug
   dotenv-rails
   faraday (~> 2.14)

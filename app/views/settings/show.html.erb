@@ -37,6 +37,14 @@
       <% end %>
     </section>
 
+    <section id="export" class="mb-4">
+      <h2 class="h-section-label">Export</h2>
+      <p class="text-13 text-secondary mb-3">
+        Download the full book catalog as CSV. Authors, subjects, and ISBNs are comma-separated in their columns.
+      </p>
+      <%= link_to 'Download books as CSV', books_csv_settings_path, class: 'btn btn-outline-secondary btn-sm' %>
+    </section>
+
     <section id="locations">
       <h2 class="h-section-label">Locations</h2>
       <p class="text-13 text-secondary mb-3">Shelf labels linked to books. Removing a location clears it from any assigned books.</p>

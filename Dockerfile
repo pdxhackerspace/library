@@ -50,7 +50,9 @@ RUN --mount=type=cache,target=/rails/tmp/cache \
 
 FROM base
 ARG APP_VERSION=dev
+ARG GITHUB_REPOSITORY
 ENV APP_VERSION=$APP_VERSION
+ENV GITHUB_REPOSITORY=$GITHUB_REPOSITORY
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
