@@ -5,12 +5,14 @@ class SentryConfigTest < ActiveSupport::TestCase
     @original_dsn = ENV.fetch('SENTRY_DSN', nil)
     @original_environment = ENV.fetch('SENTRY_ENVIRONMENT', nil)
     @original_traces_sample_rate = ENV.fetch('SENTRY_TRACES_SAMPLE_RATE', nil)
+    @original_app_version = ENV.fetch('APP_VERSION', nil)
   end
 
   teardown do
     restore_env('SENTRY_DSN', @original_dsn)
     restore_env('SENTRY_ENVIRONMENT', @original_environment)
     restore_env('SENTRY_TRACES_SAMPLE_RATE', @original_traces_sample_rate)
+    restore_env('APP_VERSION', @original_app_version)
   end
 
   test 'not configured without dsn' do
@@ -41,6 +43,18 @@ class SentryConfigTest < ActiveSupport::TestCase
     ENV['SENTRY_TRACES_SAMPLE_RATE'] = '0.25'
 
     assert_in_delta 0.25, SentryConfig.traces_sample_rate
+  end
+
+  test 'release prefers app version env var' do
+    ENV['APP_VERSION'] = '1.2.3'
+
+    assert_equal '1.2.3', SentryConfig.release
+  end
+
+  test 'release falls back to version file' do
+    ENV.delete('APP_VERSION')
+
+    assert_equal Rails.root.join('VERSION').read.strip, SentryConfig.release
   end
 
   private

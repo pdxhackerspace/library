@@ -18,13 +18,23 @@ module SentryConfig
   rescue ArgumentError
     0.0
   end
+
+  def release
+    ENV['APP_VERSION'].presence || read_version_file
+  rescue Errno::ENOENT
+    nil
+  end
+
+  def read_version_file
+    Rails.root.join('VERSION').read.strip
+  end
 end
 
 if SentryConfig.configured?
   Sentry.init do |config|
     config.dsn = SentryConfig.dsn
     config.environment = SentryConfig.environment
-    config.release = AppInfo.version
+    config.release = SentryConfig.release
     config.breadcrumbs_logger = %i[active_support_logger http_logger]
     config.traces_sample_rate = SentryConfig.traces_sample_rate
     config.send_default_pii = false
