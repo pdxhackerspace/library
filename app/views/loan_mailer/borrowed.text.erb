@@ -1,0 +1,6 @@
+Hi <%= @user.name %>,
+
+You checked out "<%= @book.title %>" from <%= @site_name %>.
+It is due on <%= @loan.due_on.to_fs(:long) %>.
+
+View book: <%= book_url(@book) %>

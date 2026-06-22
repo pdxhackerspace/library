@@ -4,6 +4,8 @@ class AppInfoTest < ActiveSupport::TestCase
   setup do
     @original_app_version = ENV.fetch('APP_VERSION', nil)
     @original_github_repository = ENV.fetch('GITHUB_REPOSITORY', nil)
+    AppInfo.instance_variable_set(:@version, nil)
+    AppInfo.instance_variable_set(:@github_repo_url, nil)
   end
 
   teardown do

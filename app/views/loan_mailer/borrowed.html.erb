@@ -1,0 +1,10 @@
+<p>Hi <%= @user.name %>,</p>
+
+<p>
+  You checked out <strong><%= @book.title %></strong> from <%= @site_name %>.
+  It is due on <%= @loan.due_on.to_fs(:long) %>.
+</p>
+
+<p>
+  <%= link_to 'View book', book_url(@book) %>
+</p>

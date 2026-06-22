@@ -24,6 +24,7 @@ gem 'omniauth-rails_csrf_protection'
 gem 'connection_pool', '< 4.0'
 gem 'redis', '>= 4.0.1'
 gem 'sidekiq', '~> 8.1'
+gem 'sidekiq-cron', '~> 2.3'
 
 gem 'bootsnap', require: false
 gem 'image_processing', '~> 1.2'

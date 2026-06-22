@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: 'from@example.com'
+  default from: -> { MailConfig.smtp_from || 'library@example.com' }
   layout 'mailer'
 end

@@ -10,6 +10,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match 'Site name', response.body
     assert_match 'Loan period', response.body
+    assert_match 'Overdue reminder interval', response.body
     assert_match 'Shelf A1', response.body
   end
 
@@ -17,13 +18,15 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     patch settings_path, params: {
       site_setting: {
         site_name: 'Hackerspace Books',
-        loan_period_days: 14
+        loan_period_days: 14,
+        overdue_nag_interval_days: 5
       }
     }
 
     assert_redirected_to settings_path
     assert_equal 'Hackerspace Books', SiteSetting.instance.site_name
     assert_equal 14, SiteSetting.instance.loan_period_days
+    assert_equal 5, SiteSetting.instance.overdue_nag_interval_days
   end
 
   test 'admin downloads books csv' do
