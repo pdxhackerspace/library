@@ -78,6 +78,38 @@ Open Library covers most books. The Google Books key is only needed when Open Li
 
 Restart the web and Sidekiq containers after changing `.env`. The Books API is free for typical library catalog use; you do not need billing enabled for normal metadata lookups.
 
+## NFC tag writing
+
+Editors can write NFC tags from a book’s show page.
+
+- **Android:** Chrome on an NFC-capable phone writes a book URL plus JSON metadata (ISBN, title, authors, location). Requires HTTPS in production.
+- **iPhone:** Opens a Shortcuts workflow that writes the book URL only. Staff install the shortcut once — see [docs/nfc/ios-shortcut-setup.md](docs/nfc/ios-shortcut-setup.md).
+
+Optional env vars:
+
+```bash
+NFC_IOS_SHORTCUT_NAME=Write Library Book Tag
+NFC_TAG_MAX_BYTES=496
+```
+
+Use NTAG215 tags or larger for Android dual-record writes. Set `APP_BASE_URL` so written URLs use your public host.
+
+## Guest browsing (on-space)
+
+Visitors on your hackerspace network can browse the catalog without signing in. Set comma-separated CIDRs in `.env`:
+
+```bash
+GUEST_SUBNET_CIDRS=192.168.1.0/24,10.0.0.0/8
+```
+
+When running behind a reverse proxy, also set `TRUSTED_PROXIES` to the proxy’s address or subnet so `request.remote_ip` reflects the client (not the proxy):
+
+```bash
+TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1
+```
+
+On-space guests can view the home page and book details. Checking out, editing, search, and other sections still require login. Off-subnet visitors must sign in to view anything.
+
 ## Versioning and releases
 
 The canonical version is in `VERSION`. To release:

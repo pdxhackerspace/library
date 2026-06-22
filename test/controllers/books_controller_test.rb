@@ -6,7 +6,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'lists books' do
-    get root_path
+    get books_path
     assert_response :success
     assert_match 'Make Electronics', response.body
     assert_match 'Charles Platt', response.body

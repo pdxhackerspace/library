@@ -22,7 +22,11 @@
             <td class="text-secondary"><%= book.authors_label %></td>
             <td class="text-secondary">
               <% if book.location %>
-                <%= link_to book.location.name, book.location, class: 'link-secondary text-decoration-none' %>
+                <% if local_assigns.fetch(:link_locations, true) %>
+                  <%= link_to book.location.name, book.location, class: 'link-secondary text-decoration-none' %>
+                <% else %>
+                  <%= book.location.name %>
+                <% end %>
               <% else %>
                 —
               <% end %>

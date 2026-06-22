@@ -52,4 +52,6 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.active_job.queue_adapter = :test
+
+  ENV['TRUSTED_PROXIES'] = '127.0.0.1,::1,10.0.0.0/8' if ENV['TRUSTED_PROXIES'].blank?
 end

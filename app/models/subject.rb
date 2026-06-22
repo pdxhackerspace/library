@@ -9,6 +9,7 @@ class Subject < ApplicationRecord
   before_validation :normalize_name
 
   scope :ordered, -> { order(:name) }
+  scope :with_books, -> { joins(:books).distinct }
 
   private
 

@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Authentication
+  include GuestAccess
 
   allow_browser versions: :modern
 

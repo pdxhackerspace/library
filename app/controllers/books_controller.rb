@@ -1,14 +1,20 @@
+# rubocop:disable Metrics/ClassLength -- catalog CRUD, checkout, and metadata endpoints
 class BooksController < ApplicationController
   include BookFormLists
 
-  before_action :require_login
+  before_action :require_guest_browse, only: %i[index show]
+  before_action :require_login, except: %i[index show]
   before_action :require_editor, except: %i[index show checkout return]
   before_action :set_book, only: %i[show edit update destroy checkout return]
   before_action :set_lookup_token, only: %i[new edit]
 
   def index
     @books = Book.includes(:authors, :isbns, :location, loans: :user).ordered
-    @active_loans = current_user.admin? ? Loan.active.includes(:book, :user).recent : Loan.none
+    @active_loans = if logged_in? && current_user.admin?
+                      Loan.active.includes(:book, :user).recent
+                    else
+                      Loan.none
+                    end
   end
 
   def show; end
@@ -119,4 +125,5 @@ class BooksController < ApplicationController
       redirect_to @book, notice: notice
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

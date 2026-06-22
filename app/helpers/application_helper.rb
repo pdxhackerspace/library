@@ -27,4 +27,8 @@ module ApplicationHelper
     css = count == 1 ? 'text-secondary' : 'fw-medium'
     tag.span(count, class: "num #{css}")
   end
+
+  def nfc_tag_payload(book)
+    Books::NfcTagPayload.call(book)
+  end
 end

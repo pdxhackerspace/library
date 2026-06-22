@@ -17,6 +17,13 @@ class Book < ApplicationRecord
   before_validation :normalize_ebook_url
 
   scope :ordered, -> { order(:title) }
+  scope :recently_added, ->(limit = 12) { order(created_at: :desc).limit(limit) }
+  scope :random_sample, ->(limit = 12) { order(Arel.sql('RANDOM()')).limit(limit) }
+
+  scope :popular, lambda { |limit = 12|
+    popular_ids = Loan.group(:book_id).order(Arel.sql('COUNT(*) DESC')).limit(limit).pluck(:book_id)
+    popular_ids.empty? ? none : in_order_of(:id, popular_ids)
+  }
 
   attr_writer :author_names_text, :author_names_list, :subject_names_list, :isbn_codes_list
 

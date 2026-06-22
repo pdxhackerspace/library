@@ -1,0 +1,14 @@
+<% if books.any? %>
+  <section class="mb-4">
+    <div class="d-flex align-items-end justify-content-between mb-2">
+      <h2 class="h-section-label mb-0"><%= title %></h2>
+      <% if local_assigns[:more_path] %>
+        <%= link_to 'All books', more_path, class: 'text-13 link-secondary' %>
+      <% end %>
+    </div>
+    <% if local_assigns[:subtitle].present? %>
+      <div class="text-13 text-secondary mb-2"><%= subtitle %></div>
+    <% end %>
+    <%= render 'shared/book_list', books: books, link_locations: local_assigns.fetch(:link_locations, logged_in?) %>
+  </section>
+<% end %>

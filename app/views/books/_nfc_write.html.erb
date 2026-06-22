@@ -1,0 +1,23 @@
+<% payload = nfc_tag_payload(book) %>
+<%= tag.div data: {
+      controller: 'nfc-write',
+      nfc_write_url_value: payload.url,
+      nfc_write_json_value: payload.json,
+      nfc_write_shortcut_name_value: ENV.fetch('NFC_IOS_SHORTCUT_NAME', 'Write Library Book Tag'),
+      nfc_write_json_truncated_value: payload.json_truncated
+    } do %>
+  <div class="d-flex flex-wrap gap-2">
+    <button type="button"
+            class="btn btn-outline-secondary btn-sm d-none"
+            data-nfc-write-target="writeButton"
+            data-action="nfc-write#write">
+      Write NFC tag
+    </button>
+    <button type="button"
+            class="btn btn-outline-secondary btn-sm"
+            data-action="nfc-write#copyLink">
+      Copy book link
+    </button>
+  </div>
+  <div class="text-13 text-secondary mt-1 d-none" data-nfc-write-target="status"></div>
+<% end %>

@@ -6,6 +6,7 @@ require 'webmock/minitest'
 WebMock.disable_net_connect!(allow_localhost: true)
 
 require Rails.root.join('test/support/sign_in_helper')
+require Rails.root.join('test/support/guest_access_test_helper')
 require Rails.root.join('test/support/oidc_test_helper')
 require Rails.root.join('test/support/integration_test')
 

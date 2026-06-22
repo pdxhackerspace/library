@@ -34,7 +34,9 @@ Rails.application.routes.draw do
     resources :locations, only: %i[create update destroy], module: :settings
   end
 
-  root 'books#index'
+  root 'home#index'
+
+  get 'home', to: 'home#index', as: :home
 
   if Rails.env.test?
     post 'test/sign_in', to: 'test_sessions#create', as: :test_sign_in
