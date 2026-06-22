@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   include Authentication
   include GuestAccess
+  include SentryContext
 
   allow_browser versions: :modern
 

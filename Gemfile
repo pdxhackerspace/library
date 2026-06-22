@@ -26,6 +26,10 @@ gem 'redis', '>= 4.0.1'
 gem 'sidekiq', '~> 8.1'
 gem 'sidekiq-cron', '~> 2.3'
 
+gem 'sentry-rails'
+gem 'sentry-ruby'
+gem 'sentry-sidekiq'
+
 gem 'bootsnap', require: false
 gem 'image_processing', '~> 1.2'
 gem 'tzinfo-data', platforms: %i[windows jruby]
