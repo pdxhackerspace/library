@@ -19,7 +19,7 @@ module Books
 
     def call
       url = book_url(@book, **route_url_options)
-      fields = build_fields
+      fields = build_fields(url)
       original_fields = fields.dup
 
       loop do
@@ -47,8 +47,10 @@ module Books
       estimate_ndef_bytes(url, marked)
     end
 
-    def build_fields
+    def build_fields(url)
       {
+        link: url,
+        library_uid: @book.id,
         isbn: @book.isbn_codes.join(', '),
         title: @book.title.to_s,
         authors: @book.authors_label.to_s,
