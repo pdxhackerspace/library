@@ -14,13 +14,14 @@ ENV RAILS_ENV="test" \
     BUNDLE_WITHOUT="development" \
     BUNDLE_JOBS="4" \
     BUNDLE_RETRY="3" \
-    PATH="/usr/local/bundle/bin:${PATH}"
+    PATH="/usr/local/bundle/bin:/usr/local/node/bin:${PATH}"
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       build-essential \
+      curl \
       git \
       libpq-dev \
       libvips \
@@ -30,5 +31,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       tzdata \
       zbar-tools && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ARG NODE_VERSION=24.9.0
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    rm -rf /tmp/node-build-master
 
 CMD ["bin/rails", "test"]

@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus'
+import { buildNdefWriteRecords } from 'nfc/ndef_write_records'
 
 export default class extends Controller {
   static targets = ['writeButton', 'status']
@@ -42,12 +43,7 @@ export default class extends Controller {
 
     try {
       const ndef = new NDEFReader()
-      await ndef.write({
-        records: [
-          { recordType: 'url', data: this.urlValue },
-          { recordType: 'mime', mediaType: 'application/json', data: this.jsonValue }
-        ]
-      })
+      await ndef.write({ records: buildNdefWriteRecords(this.urlValue, this.jsonValue) })
 
       const suffix = this.jsonTruncatedValue ? ' Metadata was shortened to fit the tag.' : ''
       this.setStatus(`Tag written.${suffix}`, 'success')
