@@ -66,6 +66,24 @@ class GuestAccessTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'uses forwarded client ip behind non private trusted proxy' do
+    with_guest_subnets('192.168.1.0/24') do
+      with_trusted_proxies('172.225.80.225') do
+        get_from_ip root_path, '192.168.1.50', proxy: '172.225.80.225'
+        assert_response :success
+      end
+    end
+  end
+
+  test 'uses forwarded client ip when trust forwarded headers is enabled' do
+    with_guest_subnets('192.168.1.0/24') do
+      with_trust_forwarded_headers(true) do
+        get_from_ip root_path, '192.168.1.50', proxy: '172.225.80.225'
+        assert_response :success
+      end
+    end
+  end
+
   private
 
   def site_name

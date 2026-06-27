@@ -102,11 +102,19 @@ Visitors on your hackerspace network can browse the catalog without signing in. 
 GUEST_SUBNET_CIDRS=192.168.1.0/24,10.0.0.0/8
 ```
 
-When running behind a reverse proxy, also set `TRUSTED_PROXIES` to the proxy’s address or subnet so `request.remote_ip` reflects the client (not the proxy):
+When running behind a reverse proxy, Rails only reads forwarded headers when the direct connection comes from a trusted proxy. Add the proxy’s address or subnet to `TRUSTED_PROXIES` — include non-private proxy IPs explicitly (for example a tunnel or load balancer address):
 
 ```bash
-TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1
+TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1,172.225.80.225
 ```
+
+If the app is only reachable through an internal proxy and the proxy IP varies, you can opt in to trusting forwarded headers without listing every proxy address. Only use this when the app is not directly exposed to the internet:
+
+```bash
+TRUST_FORWARDED_HEADERS=true
+```
+
+Some proxies set `X-Real-IP` instead of `X-Forwarded-For`; the app reads both when the upstream is trusted. For other headers (for example Cloudflare’s `CF-Connecting-IP`), set `CLIENT_IP_HEADER=CF-Connecting-IP`.
 
 To troubleshoot guest subnet matching and proxy header handling, enable request logging:
 
