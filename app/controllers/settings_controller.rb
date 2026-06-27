@@ -27,6 +27,6 @@ class SettingsController < ApplicationController
   private
 
   def site_setting_params
-    params.expect(site_setting: %i[site_name loan_period_days overdue_nag_interval_days])
+    params.expect(site_setting: %i[site_name loan_period_days overdue_nag_interval_days matomo_url matomo_site_id])
   end
 end

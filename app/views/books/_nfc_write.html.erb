@@ -1,7 +1,9 @@
+<% auto_prompt = local_assigns.fetch(:auto_prompt, false) %>
 <% payload = nfc_tag_payload(book) %>
 <%= tag.div data: {
       controller: 'nfc-write',
-      nfc_write_url_value: payload.url,
+      nfc_write_url_value: payload.tag_url,
+      nfc_write_copy_url_value: payload.url,
       nfc_write_json_value: payload.json,
       nfc_write_shortcut_name_value: ENV.fetch('NFC_IOS_SHORTCUT_NAME', 'Write Library Book Tag'),
       nfc_write_json_truncated_value: payload.json_truncated
@@ -19,5 +21,10 @@
       Copy book link
     </button>
   </div>
-  <div class="text-13 text-secondary mt-1 d-none" data-nfc-write-target="status"></div>
+  <div class="text-13 text-secondary mt-1<%= auto_prompt ? '' : ' d-none' %>"
+       data-nfc-write-target="status">
+    <% if auto_prompt %>
+      Book saved. Tap Write NFC tag, then hold your phone to the tag.
+    <% end %>
+  </div>
 <% end %>

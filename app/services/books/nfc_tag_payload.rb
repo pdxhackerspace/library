@@ -1,7 +1,9 @@
 module Books
   # rubocop:disable Metrics/ClassLength -- NDEF sizing and truncation belong together
   class NfcTagPayload
-    Result = Data.define(:url, :json, :json_truncated, :estimated_bytes)
+    Result = Data.define(:url, :tag_url, :json, :json_truncated, :estimated_bytes)
+
+    NFC_UTM_SOURCE = 'nfc'.freeze
 
     MIME_TYPE = 'application/json'.freeze
     TRUNCATION_SUFFIX = '…'.freeze
@@ -19,24 +21,36 @@ module Books
 
     def call
       url = book_url(@book, **route_url_options)
-      fields = build_fields
+      tag_url = nfc_tag_url
+      build_result(url, tag_url)
+    end
+
+    def build_result(url, tag_url)
+      fields = build_fields(url)
       original_fields = fields.dup
-
-      loop do
-        break if estimated_size(url, fields, original_fields) <= max_bytes
-
-        break unless apply_next_truncation(fields)
-      end
-
+      truncate_fields_to_fit!(tag_url, fields, original_fields)
       mark_truncated_fields!(fields, original_fields)
 
       json = JSON.generate(fields)
       Result.new(
         url: url,
+        tag_url: tag_url,
         json: json,
         json_truncated: fields != original_fields,
-        estimated_bytes: estimated_size(url, fields, original_fields)
+        estimated_bytes: estimated_size(tag_url, fields, original_fields)
       )
+    end
+
+    def truncate_fields_to_fit!(tag_url, fields, original_fields)
+      loop do
+        break if estimated_size(tag_url, fields, original_fields) <= max_bytes
+
+        break unless apply_next_truncation(fields)
+      end
+    end
+
+    def nfc_tag_url
+      book_url(@book, **route_url_options, utm_source: NFC_UTM_SOURCE)
     end
 
     private
@@ -47,8 +61,10 @@ module Books
       estimate_ndef_bytes(url, marked)
     end
 
-    def build_fields
+    def build_fields(url)
       {
+        link: url,
+        library_uid: @book.id,
         isbn: @book.isbn_codes.join(', '),
         title: @book.title.to_s,
         authors: @book.authors_label.to_s,

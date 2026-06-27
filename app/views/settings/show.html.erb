@@ -12,6 +12,14 @@
     <%= render 'nav' %>
   </div>
   <div class="col-md-9">
+    <section id="export" class="mb-4">
+      <h2 class="h-section-label">Export</h2>
+      <p class="text-13 text-secondary mb-3">
+        Download the full book catalog as CSV. Authors, subjects, and ISBNs are comma-separated in their columns.
+      </p>
+      <%= link_to 'Download books as CSV', books_csv_settings_path, class: 'btn btn-outline-secondary btn-sm' %>
+    </section>
+
     <section id="general" class="mb-4">
       <h2 class="h-section-label">General</h2>
       <%= form_with model: @site_setting, url: settings_path, method: :patch, class: 'card border-secondary-subtle' do |form| %>
@@ -43,15 +51,7 @@
       <% end %>
     </section>
 
-    <section id="export" class="mb-4">
-      <h2 class="h-section-label">Export</h2>
-      <p class="text-13 text-secondary mb-3">
-        Download the full book catalog as CSV. Authors, subjects, and ISBNs are comma-separated in their columns.
-      </p>
-      <%= link_to 'Download books as CSV', books_csv_settings_path, class: 'btn btn-outline-secondary btn-sm' %>
-    </section>
-
-    <section id="locations">
+    <section id="locations" class="mb-4">
       <h2 class="h-section-label">Locations</h2>
       <p class="text-13 text-secondary mb-3">Shelf labels linked to books. Removing a location clears it from any assigned books.</p>
 
@@ -94,6 +94,34 @@
           <%= form.text_field :name, class: 'form-control form-control-sm', placeholder: 'Shelf C3', required: true %>
         </div>
         <%= form.submit 'Add location', class: 'btn btn-outline-secondary btn-sm' %>
+      <% end %>
+    </section>
+
+    <section id="matomo">
+      <h2 class="h-section-label">Matomo</h2>
+      <p class="text-13 text-secondary mb-3">
+        Optional analytics. When configured, Matomo tracking runs on every page.
+      </p>
+      <%= form_with model: @site_setting, url: settings_path, method: :patch, class: 'card border-secondary-subtle' do |form| %>
+        <div class="card-body">
+          <% if @site_setting.errors.any? %>
+            <div class="alert alert-danger py-2 small"><%= @site_setting.errors.full_messages.to_sentence %></div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= form.label :matomo_url, 'Matomo URL', class: 'form-label' %>
+            <%= form.url_field :matomo_url, class: 'form-control form-control-sm', placeholder: 'https://matomo.example.com' %>
+            <div class="form-text">Base URL of your Matomo instance. Leave blank to disable tracking.</div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :matomo_site_id, 'Site ID', class: 'form-label' %>
+            <%= form.number_field :matomo_site_id, class: 'form-control form-control-sm num', min: 1, placeholder: '1' %>
+            <div class="form-text">The numeric site ID from Matomo.</div>
+          </div>
+
+          <%= form.submit 'Save Matomo settings', class: 'btn btn-primary btn-sm' %>
+        </div>
       <% end %>
     </section>
   </div>

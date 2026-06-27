@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_100200) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_27_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -88,6 +88,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_100200) do
     t.string "subtitle"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.integer "view_count", default: 0, null: false
+    t.integer "borrow_count", default: 0, null: false
+    t.integer "nfc_view_count", default: 0, null: false
     t.index ["location_id"], name: "index_books_on_location_id"
     t.index ["title"], name: "index_books_on_title"
   end
@@ -129,6 +132,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_100200) do
   create_table "site_settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "loan_period_days", default: 30, null: false
+    t.integer "matomo_site_id"
+    t.string "matomo_url"
     t.integer "overdue_nag_interval_days", default: 3, null: false
     t.string "site_name", default: "PDX Hackerspace Library", null: false
     t.datetime "updated_at", null: false

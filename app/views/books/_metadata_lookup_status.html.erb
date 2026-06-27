@@ -1,6 +1,6 @@
 <% tone = { success: 'success', not_found: 'secondary', error: 'warning' }.fetch(status, 'secondary') %>
 <% message = {
-  success: 'Book info loaded.',
+  success: metadata_lookup_success_message(local_assigns[:payload]),
   not_found: 'No book info found for that ISBN.',
   error: 'Could not look up book info.'
 }[status] %>

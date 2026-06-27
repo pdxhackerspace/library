@@ -108,7 +108,27 @@ When running behind a reverse proxy, also set `TRUSTED_PROXIES` to the proxy’s
 TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1
 ```
 
+To troubleshoot guest subnet matching and proxy header handling, enable request logging:
+
+```bash
+NETWORK_ACCESS_DEBUG=true
+```
+
+Each guest-access check logs the on-space decision, resolved client IP, proxy headers (`X-Forwarded-For`, etc.), configured guest CIDRs, and trusted proxies to the Rails log.
+
 On-space guests can view the home page and book details. Checking out, editing, search, and other sections still require login. Off-subnet visitors must sign in to view anything.
+
+## Sentry (optional)
+
+Set `SENTRY_DSN` to enable error reporting for Rails requests and Sidekiq jobs. Disabled in test; off by default when the DSN is unset.
+
+```bash
+SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0
+```
+
+`SENTRY_TRACES_SAMPLE_RATE` controls performance tracing (0 disables it). The app release is tagged automatically from `APP_VERSION` / `VERSION`.
 
 ## Versioning and releases
 

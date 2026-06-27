@@ -39,4 +39,24 @@ class NetworkAccessTest < ActiveSupport::TestCase
     assert NetworkAccess.on_space?('192.168.1.2')
     assert_not NetworkAccess.on_space?('172.16.0.1')
   end
+
+  test 'evaluate_on_space reports matching cidr and reason' do
+    ENV['GUEST_SUBNET_CIDRS'] = '192.168.1.0/24'
+
+    result = NetworkAccess.evaluate_on_space('192.168.1.50')
+
+    assert result[:on_space]
+    assert_equal 'ip_in_guest_subnet', result[:reason]
+    assert_equal '192.168.1.0/24', result[:matching_cidr]
+  end
+
+  test 'evaluate_on_space reports when ip is outside guest subnets' do
+    ENV['GUEST_SUBNET_CIDRS'] = '192.168.1.0/24'
+
+    result = NetworkAccess.evaluate_on_space('10.0.0.1')
+
+    assert_not result[:on_space]
+    assert_equal 'ip_not_in_guest_subnets', result[:reason]
+    assert_nil result[:matching_cidr]
+  end
 end

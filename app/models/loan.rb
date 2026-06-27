@@ -7,6 +7,7 @@ class Loan < ApplicationRecord
   validate :book_must_be_available_on_checkout, on: :create
 
   after_create_commit :notify_borrowed
+  after_create_commit :increment_book_borrow_count
 
   scope :active, -> { where(returned_at: nil) }
   scope :returned, -> { where.not(returned_at: nil) }
@@ -49,6 +50,12 @@ class Loan < ApplicationRecord
 
   def notify_borrowed
     Loans::NotifyBorrowedJob.perform_later(id)
+  end
+
+  def increment_book_borrow_count
+    # rubocop:disable Rails/SkipsModelValidations -- counter columns only
+    Book.update_counters(book_id, borrow_count: 1)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def book_must_be_available_on_checkout

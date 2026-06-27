@@ -39,6 +39,11 @@
             <div class="text-secondary text-13 mb-1"><%= @book.subtitle %></div>
           <% end %>
           <div class="text-secondary"><%= @book.authors_label %></div>
+          <% if @book.metadata_imported? %>
+            <div class="text-12 text-secondary mt-1">
+              Catalog info from <%= book_metadata_attribution(@book) %>
+            </div>
+          <% end %>
         </div>
 
         <div class="d-flex flex-wrap gap-2 flex-shrink-0">
@@ -51,6 +56,23 @@
             <% if can_manage_books? %>
               <%= link_to 'Edit', edit_book_path(@book), class: 'btn btn-outline-secondary btn-sm' %>
               <%= render 'nfc_write', book: @book %>
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="More actions">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <%= render 'delete_button',
+                               book: @book,
+                               css_class: 'dropdown-item text-danger',
+                               form: { class: 'd-grid', data: { turbo: false } } %>
+                  </li>
+                </ul>
+              </div>
             <% end %>
           <% else %>
             <%= link_to 'Sign in to check out', login_path, class: 'btn btn-primary btn-sm' %>
@@ -146,7 +168,7 @@
         </div>
       <% end %>
 
-      <% if @book.isbn_codes.any? || (logged_in? && (@book.notes.present? || @book.source_url.present?)) %>
+      <% if @book.isbn_codes.any? || (logged_in? && (@book.notes.present? || @book.metadata_imported?)) %>
         <div class="book-detail__section">
           <div class="h-section-label mb-2">System</div>
           <div class="book-detail__meta">
@@ -164,11 +186,14 @@
               </div>
             <% end %>
 
-            <% if logged_in? && @book.source_url.present? %>
+            <% if logged_in? && @book.metadata_imported? %>
               <div class="book-detail__meta-item">
-                <div class="book-detail__meta-label">Source</div>
-                <div class="book-detail__meta-value">
-                  <%= link_to @book.metadata_source&.humanize || 'Reference', @book.source_url, class: 'link-secondary text-13', target: '_blank', rel: 'noopener' %>
+                <div class="book-detail__meta-label">Catalog source</div>
+                <div class="book-detail__meta-value text-secondary">
+                  <%= book_metadata_attribution(@book) %>
+                  <% if @book.metadata_fetched_at.present? %>
+                    · <%= time_ago_in_words(@book.metadata_fetched_at) %> ago
+                  <% end %>
                 </div>
               </div>
             <% end %>
@@ -177,4 +202,11 @@
       <% end %>
     </div>
   </div>
+
+  <% if params[:write_nfc].present? && can_manage_books? %>
+    <div class="mt-4 pt-3 border-top border-secondary-subtle">
+      <div class="h-section-label mb-2">NFC tag</div>
+      <%= render 'nfc_write', book: @book, auto_prompt: true %>
+    </div>
+  <% end %>
 </div>

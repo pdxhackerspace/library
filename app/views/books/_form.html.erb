@@ -54,6 +54,10 @@
     </div>
 
     <div class="mb-3">
+      <%= render 'metadata_source_fields', form: form, book: book %>
+    </div>
+
+    <div class="mb-3">
       <%= form.label :title, class: 'form-label' %>
       <div id="book_title">
         <%= form.text_field :title, class: 'form-control form-control-sm', required: true %>
@@ -198,19 +202,18 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2">
-      <%= form.submit class: 'btn btn-primary btn-sm' %>
+      <%= form.submit 'Save', class: 'btn btn-primary btn-sm' %>
       <% if local_assigns.fetch(:show_add_another, false) %>
-        <%= form.submit 'Create book and add another', name: 'add_another', class: 'btn btn-outline-secondary btn-sm' %>
+        <%= form.submit 'Write NFC tag', name: 'write_nfc', class: 'btn btn-outline-secondary btn-sm' %>
+        <%= form.submit 'Save and add new book', name: 'add_another', class: 'btn btn-outline-secondary btn-sm' %>
       <% end %>
       <%= link_to 'Cancel', book.persisted? ? book : books_path, class: 'btn btn-outline-secondary btn-sm' %>
     </div>
   </div>
 <% end %>
 
-<% if book.persisted? && !book.on_loan? %>
+<% if book.persisted? %>
   <div class="d-flex justify-content-end mt-2">
-    <%= button_to 'Delete', book, method: :delete, class: 'btn btn-outline-danger btn-sm',
-                  data: { turbo_confirm: 'Remove this book from the library?' },
-                  form: { data: { turbo: false } } %>
+    <%= render 'delete_button', book: book %>
   </div>
 <% end %>

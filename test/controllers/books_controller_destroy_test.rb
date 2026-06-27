@@ -23,16 +23,28 @@ class BooksControllerDestroyTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{book_path(book)}']", count: 0
   end
 
-  test 'admin cannot delete book that is on loan' do
+  test 'admin deletes book that is on loan' do
     book = books(:electronics)
+    title = book.title
 
-    assert_no_difference 'Book.count' do
+    assert book.on_loan?
+
+    assert_difference 'Book.count', -1 do
       delete book_path(book)
     end
 
-    assert_redirected_to book_path(book)
+    assert_redirected_to books_path
     assert_response :see_other
-    assert_equal 'Return the book before deleting it.', flash[:alert]
+    assert_equal "\"#{title}\" removed from the library.", flash[:notice]
+  end
+
+  test 'show page delete action is in kebab menu' do
+    book = books(:pragmatic)
+
+    get book_path(book)
+
+    assert_response :success
+    assert_select "form[action='#{book_path(book)}'] input[name='_method'][value='delete']", 1
   end
 
   test 'edit form delete button is not nested inside main form' do

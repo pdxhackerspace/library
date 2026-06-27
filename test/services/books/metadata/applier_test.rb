@@ -35,6 +35,9 @@ module Books
         assert_equal 'Filled Title', payload[:title]
         assert_equal ['Jane Doe'], payload[:author_names]
         assert_equal ['Programming'], payload[:subject_names]
+        assert_equal 'open_library', payload[:metadata_source]
+        assert_equal 'https://openlibrary.org/isbn/9780201616224', payload[:source_url]
+        assert payload[:metadata_fetched_at].present?
       end
     end
   end

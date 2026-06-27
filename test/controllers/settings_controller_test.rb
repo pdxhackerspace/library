@@ -11,7 +11,40 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_match 'Site name', response.body
     assert_match 'Loan period', response.body
     assert_match 'Overdue reminder interval', response.body
+    assert_match 'Matomo URL', response.body
     assert_match 'Shelf A1', response.body
+  end
+
+  test 'admin updates matomo settings' do
+    patch settings_path, params: {
+      site_setting: {
+        matomo_url: 'https://matomo.example.com/',
+        matomo_site_id: 2
+      }
+    }
+
+    assert_redirected_to settings_path
+    setting = SiteSetting.instance
+    assert_equal 'https://matomo.example.com', setting.matomo_url
+    assert_equal 2, setting.matomo_site_id
+    assert setting.matomo_enabled?
+  end
+
+  test 'admin clears matomo settings' do
+    site_settings(:default).update!(matomo_url: 'https://matomo.example.com', matomo_site_id: 1)
+
+    patch settings_path, params: {
+      site_setting: {
+        matomo_url: '',
+        matomo_site_id: 1
+      }
+    }
+
+    assert_redirected_to settings_path
+    setting = SiteSetting.instance
+    assert_nil setting.matomo_url
+    assert_nil setting.matomo_site_id
+    assert_not setting.matomo_enabled?
   end
 
   test 'admin updates site settings' do

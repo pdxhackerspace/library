@@ -35,5 +35,25 @@ module Books
         )
       end
     end
+
+    test 'annotates persisted book with metadata source when filling empty fields' do
+      stub_request(:get, %r{https://covers.openlibrary.org/})
+        .to_return(status: 200, body: 'jpeg-bytes', headers: { 'Content-Type' => 'image/jpeg' })
+
+      book = books(:electronics)
+      book.update!(description: nil, metadata_source: nil, source_url: nil, metadata_fetched_at: nil)
+
+      Books::MetadataLookupJob.perform_now(
+        lookup_token: 'edit-token',
+        isbn: '9780201616224',
+        book_id: book.id,
+        only_empty: true
+      )
+
+      book.reload
+      assert_equal 'open_library', book.metadata_source
+      assert_match(/openlibrary.org/, book.source_url)
+      assert book.metadata_fetched_at.present?
+    end
   end
 end

@@ -98,5 +98,24 @@ module Books
       assert_equal %w[Electronics Programming], book.subjects.pluck(:name)
       assert book.covers_attached?
     end
+
+    test 'saves metadata source fields from lookup' do
+      book = Book.new
+
+      assert Books::Save.new(book, {
+                               title: 'Lookup Book',
+                               author_names: ['Author One'],
+                               metadata_source: 'open_library',
+                               source_url: 'https://openlibrary.org/isbn/9780201616224',
+                               metadata_fetched_at: Time.current.iso8601
+                             }).call
+
+      book.reload
+      assert_equal 'open_library', book.metadata_source
+      assert_equal 'https://openlibrary.org/isbn/9780201616224', book.source_url
+      assert book.metadata_fetched_at.present?
+      assert book.metadata_imported?
+      assert_equal 'Open Library', book.metadata_source_label
+    end
   end
 end

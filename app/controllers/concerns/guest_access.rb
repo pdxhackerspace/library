@@ -8,7 +8,9 @@ module GuestAccess
   def on_space?
     return @on_space if defined?(@on_space)
 
-    @on_space = NetworkAccess.on_space?(request.remote_ip)
+    evaluation = NetworkAccess.evaluate_on_space(request.remote_ip)
+    NetworkAccessDebug.log_decision(request, evaluation)
+    @on_space = evaluation[:on_space]
   end
 
   def guest_browse?

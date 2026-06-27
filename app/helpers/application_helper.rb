@@ -69,4 +69,29 @@ module ApplicationHelper
   def nfc_tag_payload(book)
     Books::NfcTagPayload.call(book)
   end
+
+  def book_metadata_attribution(book)
+    return unless book.metadata_imported?
+
+    label = book.metadata_source_label
+    if book.source_url.present?
+      link_to label, book.source_url, class: 'link-secondary text-13', target: '_blank', rel: 'noopener'
+    else
+      tag.span(label, class: 'text-secondary text-13')
+    end
+  end
+
+  def metadata_lookup_success_message(payload)
+    return 'Book info loaded.' if payload.blank? || payload[:metadata_source].blank?
+
+    source = Book::METADATA_SOURCE_LABELS.fetch(payload[:metadata_source], payload[:metadata_source].humanize)
+    source_url = payload[:source_url].to_s.presence
+    return "Book info loaded from #{source}." if source_url.blank?
+
+    safe_join([
+                'Book info loaded from ',
+                link_to(source, source_url, class: 'link-secondary', target: '_blank', rel: 'noopener'),
+                '.'
+              ])
+  end
 end
