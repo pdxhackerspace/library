@@ -22,7 +22,7 @@ module NetworkAccessDebug
       },
       resolved_client_ip: request.remote_ip,
       proxy: proxy_info(request),
-      guest_subnet_cidrs: NetworkAccess.guest_subnet_cidrs.map(&:to_s),
+      guest_subnet_cidrs: NetworkAccess.guest_subnet_labels,
       guest_subnet_cidrs_env: ENV.fetch('GUEST_SUBNET_CIDRS', ''),
       trusted_proxies: trusted_proxies.map(&:to_s),
       trusted_proxies_env: ENV.fetch('TRUSTED_PROXIES', '')

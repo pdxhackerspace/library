@@ -1,5 +1,5 @@
 class SiteSetting < ApplicationRecord
-  MATOMO_URL_FORMAT = /\Ahttps?:\/\/\S+\z/i
+  MATOMO_URL_FORMAT = %r{\Ahttps?://\S+\z}i
 
   validates :site_name, presence: true
   validates :loan_period_days, numericality: { only_integer: true, greater_than: 0 }
