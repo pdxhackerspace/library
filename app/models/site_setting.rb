@@ -1,8 +1,10 @@
 class SiteSetting < ApplicationRecord
+  MATOMO_URL_FORMAT = /\Ahttps?:\/\/\S+\z/i
+
   validates :site_name, presence: true
   validates :loan_period_days, numericality: { only_integer: true, greater_than: 0 }
   validates :overdue_nag_interval_days, numericality: { only_integer: true, greater_than: 0 }
-  validates :matomo_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true }
+  validates :matomo_url, format: { with: MATOMO_URL_FORMAT, allow_blank: true }
   validates :matomo_site_id, numericality: { only_integer: true, greater_than: 0, allow_nil: true }
   validate :matomo_site_id_required_when_url_present
 

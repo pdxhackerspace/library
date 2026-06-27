@@ -45,4 +45,13 @@ class SiteSettingTest < ActiveSupport::TestCase
     assert_not setting.valid?
     assert_includes setting.errors[:matomo_site_id], 'is required when Matomo URL is set'
   end
+
+  test 'rejects invalid matomo url format' do
+    setting = SiteSetting.instance
+    setting.matomo_url = 'not-a-url'
+    setting.matomo_site_id = 1
+
+    assert_not setting.valid?
+    assert_includes setting.errors[:matomo_url], 'is invalid'
+  end
 end
