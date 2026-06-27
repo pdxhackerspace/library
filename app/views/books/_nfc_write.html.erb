@@ -1,3 +1,4 @@
+<% auto_prompt = local_assigns.fetch(:auto_prompt, false) %>
 <% payload = nfc_tag_payload(book) %>
 <%= tag.div data: {
       controller: 'nfc-write',
@@ -19,5 +20,10 @@
       Copy book link
     </button>
   </div>
-  <div class="text-13 text-secondary mt-1 d-none" data-nfc-write-target="status"></div>
+  <div class="text-13 text-secondary mt-1<%= auto_prompt ? '' : ' d-none' %>"
+       data-nfc-write-target="status">
+    <% if auto_prompt %>
+      Book saved. Tap Write NFC tag, then hold your phone to the tag.
+    <% end %>
+  </div>
 <% end %>

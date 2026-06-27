@@ -51,6 +51,23 @@
             <% if can_manage_books? %>
               <%= link_to 'Edit', edit_book_path(@book), class: 'btn btn-outline-secondary btn-sm' %>
               <%= render 'nfc_write', book: @book %>
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="More actions">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <%= render 'delete_button',
+                               book: @book,
+                               css_class: 'dropdown-item text-danger',
+                               form: { class: 'd-grid', data: { turbo: false } } %>
+                  </li>
+                </ul>
+              </div>
             <% end %>
           <% else %>
             <%= link_to 'Sign in to check out', login_path, class: 'btn btn-primary btn-sm' %>
@@ -177,4 +194,11 @@
       <% end %>
     </div>
   </div>
+
+  <% if params[:write_nfc].present? && can_manage_books? %>
+    <div class="mt-4 pt-3 border-top border-secondary-subtle">
+      <div class="h-section-label mb-2">NFC tag</div>
+      <%= render 'nfc_write', book: @book, auto_prompt: true %>
+    </div>
+  <% end %>
 </div>

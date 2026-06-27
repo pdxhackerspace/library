@@ -42,7 +42,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   test 'create book and add another returns to new book form' do
     assert_difference 'Book.count', 1 do
       post books_path, params: {
-        add_another: 'Create book and add another',
+        add_another: 'Save and add new book',
         book: {
           title: 'Another Entry',
           author_names: ['Someone']
@@ -52,6 +52,30 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_book_path
     assert_equal 'Book added to the library.', flash[:notice]
+  end
+
+  test 'create book with write nfc redirects to show with nfc prompt' do
+    assert_difference 'Book.count', 1 do
+      post books_path, params: {
+        write_nfc: 'Write NFC tag',
+        book: {
+          title: 'Tagged Book',
+          author_names: ['Someone']
+        }
+      }
+    end
+
+    book = Book.order(:id).last
+    assert_redirected_to book_path(book, write_nfc: 1)
+    assert_equal 'Book added to the library.', flash[:notice]
+  end
+
+  test 'new book form shows save write nfc and add another actions' do
+    get new_book_path
+    assert_response :success
+    assert_select 'input[type=submit][value="Save"]', 1
+    assert_select 'input[type=submit][value="Write NFC tag"]', 1
+    assert_select 'input[type=submit][value="Save and add new book"]', 1
   end
 
   test 'checkout and return' do

@@ -1,0 +1,13 @@
+<% book = local_assigns.fetch(:book) %>
+<% css_class = local_assigns.fetch(:css_class, 'btn btn-outline-danger btn-sm') %>
+<% confirm = if book.on_loan?
+               'This book is on loan. Remove it from the library anyway?'
+             else
+               'Remove this book from the library?'
+             end %>
+<%= button_to local_assigns.fetch(:label, 'Delete'),
+              book,
+              method: :delete,
+              class: css_class,
+              data: { turbo_confirm: confirm },
+              form: local_assigns.fetch(:form, { data: { turbo: false } }) %>

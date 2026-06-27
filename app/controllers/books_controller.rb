@@ -53,13 +53,14 @@ class BooksController < ApplicationController
   end
 
   def destroy
-    if @book.on_loan?
-      redirect_to @book, alert: 'Return the book before deleting it.', status: :see_other
-    else
-      title = @book.title
+    title = @book.title
+
+    Book.transaction do
+      @book.active_loan&.return!
       @book.destroy!
-      redirect_to books_path, notice: "\"#{title}\" removed from the library.", status: :see_other
     end
+
+    redirect_to books_path, notice: "\"#{title}\" removed from the library.", status: :see_other
   end
 
   def checkout
@@ -121,6 +122,8 @@ class BooksController < ApplicationController
     notice = create_redirect ? 'Book added to the library.' : 'Book updated.'
     if create_redirect && params[:add_another].present?
       redirect_to new_book_path, notice: notice
+    elsif params[:write_nfc].present?
+      redirect_to book_path(@book, write_nfc: 1), notice: notice
     else
       redirect_to @book, notice: notice
     end
