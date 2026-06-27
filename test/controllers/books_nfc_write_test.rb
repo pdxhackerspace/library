@@ -10,6 +10,7 @@ class BooksNfcWriteTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match 'Write NFC tag', response.body
     assert_match 'Copy book link', response.body
+    assert_match payload.tag_url, response.body
     assert_match payload.url, response.body
   end
 

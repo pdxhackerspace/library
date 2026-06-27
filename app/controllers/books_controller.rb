@@ -17,7 +17,16 @@ class BooksController < ApplicationController
                     end
   end
 
-  def show; end
+  def show
+    if Books::RecordView.nfc_visit?(params[:utm_source])
+      Books::RecordView.call(@book, utm_source: params[:utm_source])
+      session[:skip_book_view_count] = true
+      redirect_to book_path(@book), status: :see_other
+      return
+    end
+
+    Books::RecordView.call(@book) unless session.delete(:skip_book_view_count)
+  end
 
   def new
     @book = Book.new
