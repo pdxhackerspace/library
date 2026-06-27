@@ -84,6 +84,19 @@ class Book < ApplicationRecord
     names.presence || ['']
   end
 
+  METADATA_SOURCE_LABELS = {
+    'open_library' => 'Open Library',
+    'google_books' => 'Google Books'
+  }.freeze
+
+  def metadata_imported?
+    metadata_source.present?
+  end
+
+  def metadata_source_label
+    METADATA_SOURCE_LABELS.fetch(metadata_source, metadata_source&.humanize)
+  end
+
   private
 
   def normalize_ebook_url

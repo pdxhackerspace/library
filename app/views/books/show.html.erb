@@ -39,6 +39,11 @@
             <div class="text-secondary text-13 mb-1"><%= @book.subtitle %></div>
           <% end %>
           <div class="text-secondary"><%= @book.authors_label %></div>
+          <% if @book.metadata_imported? %>
+            <div class="text-12 text-secondary mt-1">
+              Catalog info from <%= book_metadata_attribution(@book) %>
+            </div>
+          <% end %>
         </div>
 
         <div class="d-flex flex-wrap gap-2 flex-shrink-0">
@@ -163,7 +168,7 @@
         </div>
       <% end %>
 
-      <% if @book.isbn_codes.any? || (logged_in? && (@book.notes.present? || @book.source_url.present?)) %>
+      <% if @book.isbn_codes.any? || (logged_in? && (@book.notes.present? || @book.metadata_imported?)) %>
         <div class="book-detail__section">
           <div class="h-section-label mb-2">System</div>
           <div class="book-detail__meta">
@@ -181,11 +186,14 @@
               </div>
             <% end %>
 
-            <% if logged_in? && @book.source_url.present? %>
+            <% if logged_in? && @book.metadata_imported? %>
               <div class="book-detail__meta-item">
-                <div class="book-detail__meta-label">Source</div>
-                <div class="book-detail__meta-value">
-                  <%= link_to @book.metadata_source&.humanize || 'Reference', @book.source_url, class: 'link-secondary text-13', target: '_blank', rel: 'noopener' %>
+                <div class="book-detail__meta-label">Catalog source</div>
+                <div class="book-detail__meta-value text-secondary">
+                  <%= book_metadata_attribution(@book) %>
+                  <% if @book.metadata_fetched_at.present? %>
+                    · <%= time_ago_in_words(@book.metadata_fetched_at) %> ago
+                  <% end %>
                 </div>
               </div>
             <% end %>

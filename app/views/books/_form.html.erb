@@ -54,6 +54,10 @@
     </div>
 
     <div class="mb-3">
+      <%= render 'metadata_source_fields', form: form, book: book %>
+    </div>
+
+    <div class="mb-3">
       <%= form.label :title, class: 'form-label' %>
       <div id="book_title">
         <%= form.text_field :title, class: 'form-control form-control-sm', required: true %>

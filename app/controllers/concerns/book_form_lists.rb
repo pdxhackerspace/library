@@ -25,6 +25,7 @@ module BookFormLists
     attrs = params.expect(book: %i[
                             title subtitle published_on location_id notes ebook_url
                             description publisher page_count language copies_count
+                            metadata_source source_url metadata_fetched_at
                           ])
     attrs[:author_names] = Array(params.dig(:book, :author_names))
     attrs[:subject_names] = Array(params.dig(:book, :subject_names))

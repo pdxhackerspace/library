@@ -1,0 +1,17 @@
+<% payload = local_assigns[:payload] || {} %>
+<% metadata_source = payload[:metadata_source].presence || book&.metadata_source %>
+<% source_url = payload[:source_url].presence || book&.source_url %>
+<% metadata_fetched_at = payload[:metadata_fetched_at].presence || book&.metadata_fetched_at %>
+<% fetched_at_value = metadata_fetched_at.is_a?(Time) ? metadata_fetched_at.iso8601 : metadata_fetched_at.to_s.presence %>
+
+<div id="book_metadata_source">
+  <% if local_assigns[:form] %>
+    <%= form.hidden_field :metadata_source, value: metadata_source %>
+    <%= form.hidden_field :source_url, value: source_url %>
+    <%= form.hidden_field :metadata_fetched_at, value: fetched_at_value %>
+  <% else %>
+    <input type="hidden" name="book[metadata_source]" value="<%= metadata_source %>" autocomplete="off">
+    <input type="hidden" name="book[source_url]" value="<%= source_url %>" autocomplete="off">
+    <input type="hidden" name="book[metadata_fetched_at]" value="<%= fetched_at_value %>" autocomplete="off">
+  <% end %>
+</div>

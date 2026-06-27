@@ -1,5 +1,11 @@
 <%= turbo_stream.update 'metadata_lookup_status' do %>
-  <%= render 'books/metadata_lookup_status', status: status %>
+  <%= render 'books/metadata_lookup_status', status: status, payload: payload %>
+<% end %>
+
+<% if payload[:metadata_source].present? %>
+  <%= turbo_stream.update 'book_metadata_source' do %>
+    <%= render 'books/metadata_source_fields', form: nil, book: nil, payload: payload %>
+  <% end %>
 <% end %>
 
 <% if payload[:title].present? %>
