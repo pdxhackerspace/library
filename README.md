@@ -108,6 +108,14 @@ When running behind a reverse proxy, also set `TRUSTED_PROXIES` to the proxy’s
 TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1
 ```
 
+To troubleshoot guest subnet matching and proxy header handling, enable request logging:
+
+```bash
+NETWORK_ACCESS_DEBUG=true
+```
+
+Each guest-access check logs the on-space decision, resolved client IP, proxy headers (`X-Forwarded-For`, etc.), configured guest CIDRs, and trusted proxies to the Rails log.
+
 On-space guests can view the home page and book details. Checking out, editing, search, and other sections still require login. Off-subnet visitors must sign in to view anything.
 
 ## Sentry (optional)
