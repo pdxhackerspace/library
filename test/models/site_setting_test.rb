@@ -19,4 +19,30 @@ class SiteSettingTest < ActiveSupport::TestCase
 
     assert_not setting.valid?
   end
+
+  test 'matomo enabled when url and site id are set' do
+    setting = SiteSetting.instance
+    setting.matomo_url = 'https://matomo.example.com'
+    setting.matomo_site_id = 1
+
+    assert setting.matomo_enabled?
+    assert_equal 'https://matomo.example.com', setting.matomo_tracker_base_url
+  end
+
+  test 'matomo disabled when url is blank' do
+    setting = SiteSetting.instance
+    setting.matomo_url = nil
+    setting.matomo_site_id = 1
+
+    assert_not setting.matomo_enabled?
+  end
+
+  test 'requires site id when matomo url is set' do
+    setting = SiteSetting.instance
+    setting.matomo_url = 'https://matomo.example.com'
+    setting.matomo_site_id = nil
+
+    assert_not setting.valid?
+    assert_includes setting.errors[:matomo_site_id], 'is required when Matomo URL is set'
+  end
 end
