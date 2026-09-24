@@ -14,6 +14,7 @@ module AdminBootstrap
 
     user = User.find_by(email: email)
     if user.nil?
+      # codeql[rb/clear-text-storage-sensitive-data]: bcrypt-hashed by has_secure_password before DB write
       User.create!(email: email, name: name, admin: true, password: password)
     else
       user.update!(name: name, admin: true)
