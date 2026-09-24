@@ -46,6 +46,12 @@ class SiteSettingTest < ActiveSupport::TestCase
     assert_includes setting.errors[:matomo_site_id], 'is required when Matomo URL is set'
   end
 
+  test 'members can add books defaults to disabled' do
+    setting = SiteSetting.instance
+
+    assert_not setting.members_can_add_books?
+  end
+
   test 'rejects invalid matomo url format' do
     setting = SiteSetting.instance
     setting.matomo_url = 'not-a-url'

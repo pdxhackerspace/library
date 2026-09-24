@@ -46,6 +46,14 @@
             <div class="form-text">How often to remind borrowers about overdue books.</div>
           </div>
 
+          <div class="mb-3">
+            <div class="form-check">
+              <%= form.check_box :members_can_add_books, class: 'form-check-input' %>
+              <%= form.label :members_can_add_books, 'Allow all members to add books', class: 'form-check-label' %>
+            </div>
+            <div class="form-text">When enabled, any signed-in member can add and manage books in the catalog.</div>
+          </div>
+
           <%= form.submit 'Save settings', class: 'btn btn-primary btn-sm' %>
         </div>
       <% end %>

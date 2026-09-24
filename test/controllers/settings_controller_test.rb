@@ -62,6 +62,33 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, SiteSetting.instance.overdue_nag_interval_days
   end
 
+  test 'admin enables members can add books' do
+    patch settings_path, params: {
+      site_setting: { members_can_add_books: '1' }
+    }
+
+    assert_redirected_to settings_path
+    assert SiteSetting.instance.members_can_add_books?
+  end
+
+  test 'admin disables members can add books' do
+    site_settings(:default).update!(members_can_add_books: true)
+
+    patch settings_path, params: {
+      site_setting: { members_can_add_books: '0' }
+    }
+
+    assert_redirected_to settings_path
+    assert_not SiteSetting.instance.members_can_add_books?
+  end
+
+  test 'settings page shows members can add books toggle' do
+    get settings_path
+
+    assert_response :success
+    assert_match 'Allow all members to add books', response.body
+  end
+
   test 'admin downloads books csv' do
     get books_csv_settings_path
 

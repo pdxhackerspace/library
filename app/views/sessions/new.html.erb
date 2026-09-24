@@ -1,7 +1,7 @@
 <% if OidcConfig.configured? %>
   <div class="card border-secondary-subtle">
     <div class="card-body">
-      <%= button_to 'Sign in with SSO',
+      <%= button_to 'Sign in with Authentik',
                     '/auth/oidc',
                     method: :post,
                     data: { turbo: false },

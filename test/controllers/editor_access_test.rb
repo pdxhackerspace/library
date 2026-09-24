@@ -72,4 +72,24 @@ class EditorAccessTest < ActionDispatch::IntegrationTest
       post books_path, params: { book: { title: 'Blocked', author_names: ['Nope'] } }
     end
   end
+
+  test 'member can manage books when setting enabled' do
+    site_settings(:default).update!(members_can_add_books: true)
+    sign_in_local(users(:member))
+
+    get new_book_path
+    assert_response :success
+
+    assert_difference 'Book.count', 1 do
+      post books_path, params: {
+        book: {
+          title: 'Member Added Book',
+          author_names: ['Someone']
+        }
+      }
+    end
+
+    book = Book.order(:id).last
+    assert_redirected_to book_path(book)
+  end
 end

@@ -22,7 +22,9 @@ module Authentication
   end
 
   def can_manage_books?
-    current_user&.can_manage_books?
+    return false unless current_user
+
+    current_user.can_manage_books? || site_setting.members_can_add_books?
   end
 
   def require_editor

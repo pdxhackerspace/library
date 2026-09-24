@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_27_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_24_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -134,6 +134,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_27_130000) do
     t.integer "loan_period_days", default: 30, null: false
     t.integer "matomo_site_id"
     t.string "matomo_url"
+    t.boolean "members_can_add_books", default: false, null: false
     t.integer "overdue_nag_interval_days", default: 3, null: false
     t.string "site_name", default: "PDX Hackerspace Library", null: false
     t.datetime "updated_at", null: false

@@ -7,7 +7,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'input[type=email]'
     assert_select 'input[type=submit][value="Sign in"]'
-    assert_select 'button', text: /Sign in with SSO/, count: 0
+    assert_select 'button', text: /Sign in with Authentik/, count: 0
     assert_select 'details', count: 0
   end
 
@@ -16,7 +16,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       get login_path
 
       assert_response :success
-      assert_select 'button', text: 'Sign in with SSO'
+      assert_select 'button', text: 'Sign in with Authentik'
       assert_select 'details summary', text: 'Sign in with email and password'
       assert_select 'details input[type=email]'
     end
