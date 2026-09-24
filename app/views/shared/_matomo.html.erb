@@ -1,13 +1,18 @@
 <% return unless site_setting.matomo_enabled? %>
 
-<% tracker_url = "#{site_setting.matomo_tracker_base_url}/" %>
+<div id="matomo-config"
+     data-tracker-url="<%= site_setting.matomo_tracker_base_url %>/"
+     data-site-id="<%= site_setting.matomo_site_id %>"
+     hidden></div>
 <script>
   var _paq = window._paq = window._paq || [];
   _paq.push(['enableLinkTracking']);
   (function () {
-    var u = <%= tracker_url.to_json.html_safe %>;
+    var cfg = document.getElementById('matomo-config');
+    var u = cfg.dataset.trackerUrl;
+    var siteId = Number(cfg.dataset.siteId);
     _paq.push(['setTrackerUrl', u + 'matomo.php']);
-    _paq.push(['setSiteId', <%= site_setting.matomo_site_id.to_json.html_safe %>]);
+    _paq.push(['setSiteId', siteId]);
     var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
     g.async = true;
     g.src = u + 'matomo.js';

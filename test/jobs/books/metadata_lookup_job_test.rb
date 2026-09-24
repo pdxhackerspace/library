@@ -3,7 +3,7 @@ require 'test_helper'
 module Books
   class MetadataLookupJobTest < ActiveJob::TestCase
     setup do
-      stub_request(:get, %r{https://openlibrary.org/api/books})
+      stub_request(:get, %r{https://openlibrary\.org/api/books})
         .to_return(
           status: 200,
           body: file_fixture('metadata/open_library_pragmatic.json').read,
@@ -22,9 +22,9 @@ module Books
     end
 
     test 'broadcasts not found status when lookup misses' do
-      stub_request(:get, %r{https://openlibrary.org/api/books})
+      stub_request(:get, %r{https://openlibrary\.org/api/books})
         .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
-      stub_request(:get, %r{https://www.googleapis.com/books/v1/volumes})
+      stub_request(:get, %r{https://www\.googleapis\.com/books/v1/volumes})
         .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
 
       assert_nothing_raised do
@@ -37,7 +37,7 @@ module Books
     end
 
     test 'annotates persisted book with metadata source when filling empty fields' do
-      stub_request(:get, %r{https://covers.openlibrary.org/})
+      stub_request(:get, %r{https://covers\.openlibrary\.org/})
         .to_return(status: 200, body: 'jpeg-bytes', headers: { 'Content-Type' => 'image/jpeg' })
 
       book = books(:electronics)

@@ -10,17 +10,19 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "autoprefixer": "^10.5.0",
-    "baseline-browser-mapping": "2.11.22",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "brace-expansion": "5.0.9",
-    "browserslist": "4.28.9",
-    "immutable": "5.1.9",
     "nanoid": "3.3.18",
     "nodemon": "^3.1.14",
     "postcss": "8.5.23",
     "postcss-cli": "^11.0.0",
     "sass": "^1.101.0"
+  },
+  "resolutions": {
+    "baseline-browser-mapping": "2.11.25",
+    "brace-expansion": "5.0.12",
+    "browserslist": "4.29.1",
+    "immutable": "5.1.9"
   },
   "browserslist": [
     "defaults"

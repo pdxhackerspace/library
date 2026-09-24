@@ -29,7 +29,8 @@ class MatomoTrackingTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_match 'matomo.example.com', response.body
       assert_match 'matomo.js', response.body
-      assert_match "['setSiteId', 3]", response.body
+      assert_match 'data-site-id="3"', response.body
+      assert_match 'id="matomo-config"', response.body
       assert_match 'turbo:load', response.body
     end
   end

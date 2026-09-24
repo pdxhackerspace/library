@@ -5,7 +5,7 @@ module Books
     class GoogleBooksClientTest < ActiveSupport::TestCase
       setup do
         ENV['GOOGLE_BOOKS_API_KEY'] = 'test-key'
-        stub_request(:get, %r{https://www.googleapis.com/books/v1/volumes})
+        stub_request(:get, %r{https://www\.googleapis\.com/books/v1/volumes})
           .to_return(
             status: 200,
             body: file_fixture('metadata/google_books_pragmatic.json').read,

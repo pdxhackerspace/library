@@ -38,8 +38,11 @@ module AppInfo
   def parse_github_repository(remote)
     if remote.start_with?('git@github.com:')
       remote.delete_prefix('git@github.com:').delete_suffix('.git')
-    elsif remote.include?('github.com')
-      URI.parse(remote).path.delete_prefix('/').delete_suffix('.git')
+    else
+      uri = URI.parse(remote)
+      return unless uri.host == 'github.com'
+
+      uri.path.delete_prefix('/').delete_suffix('.git')
     end
   rescue URI::InvalidURIError
     nil

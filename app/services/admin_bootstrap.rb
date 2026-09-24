@@ -12,10 +12,11 @@ module AdminBootstrap
 
     return if email.blank? || password.blank?
 
-    user = User.find_or_initialize_by(email: email)
-    user.name = name
-    user.admin = true
-    user.password = password if user.new_record?
-    user.save!
+    user = User.find_by(email: email)
+    if user.nil?
+      User.create!(email: email, name: name, admin: true, password: password)
+    else
+      user.update!(name: name, admin: true)
+    end
   end
 end

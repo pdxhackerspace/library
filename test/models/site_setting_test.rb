@@ -60,4 +60,22 @@ class SiteSettingTest < ActiveSupport::TestCase
     assert_not setting.valid?
     assert_includes setting.errors[:matomo_url], 'is invalid'
   end
+
+  test 'rejects matomo url without https' do
+    setting = SiteSetting.instance
+    setting.matomo_url = 'http://matomo.example.com'
+    setting.matomo_site_id = 1
+
+    assert_not setting.valid?
+    assert_includes setting.errors[:matomo_url], 'must use HTTPS'
+  end
+
+  test 'rejects matomo url with script-breaking characters' do
+    setting = SiteSetting.instance
+    setting.matomo_url = 'https://matomo.example.com/</script><script>alert(1)'
+    setting.matomo_site_id = 1
+
+    assert_not setting.valid?
+    assert_includes setting.errors[:matomo_url], 'is invalid'
+  end
 end

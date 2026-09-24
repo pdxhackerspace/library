@@ -4,11 +4,11 @@ module Books
   module Metadata
     class LookupTest < ActiveSupport::TestCase
       test 'falls back to google books when open library misses' do
-        stub_request(:get, %r{https://openlibrary.org/api/books})
+        stub_request(:get, %r{https://openlibrary\.org/api/books})
           .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
 
         ENV['GOOGLE_BOOKS_API_KEY'] = 'test-key'
-        stub_request(:get, %r{https://www.googleapis.com/books/v1/volumes})
+        stub_request(:get, %r{https://www\.googleapis\.com/books/v1/volumes})
           .to_return(
             status: 200,
             body: file_fixture('metadata/google_books_pragmatic.json').read,

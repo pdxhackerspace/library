@@ -37,6 +37,16 @@ class AppInfoTest < ActiveSupport::TestCase
     assert_equal 'pdxhackerspace/library', AppInfo.parse_github_repository('git@github.com:pdxhackerspace/library.git')
   end
 
+  test 'parse_github_repository handles https remote' do
+    assert_equal 'pdxhackerspace/library',
+                 AppInfo.parse_github_repository('https://github.com/pdxhackerspace/library.git')
+  end
+
+  test 'parse_github_repository rejects host substring bypass' do
+    assert_nil AppInfo.parse_github_repository('https://evil-github.com/pdxhackerspace/library.git')
+    assert_nil AppInfo.parse_github_repository('https://github.com.evil.net/pdxhackerspace/library.git')
+  end
+
   private
 
   def restore_env(key, value)

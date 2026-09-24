@@ -4,7 +4,7 @@ module Books
   module Metadata
     class OpenLibraryClientTest < ActiveSupport::TestCase
       setup do
-        stub_request(:get, %r{https://openlibrary.org/api/books})
+        stub_request(:get, %r{https://openlibrary\.org/api/books})
           .to_return(
             status: 200,
             body: file_fixture('metadata/open_library_pragmatic.json').read,
@@ -24,7 +24,7 @@ module Books
       end
 
       test 'extracts publisher and subject names from hash payloads' do
-        stub_request(:get, %r{https://openlibrary.org/api/books})
+        stub_request(:get, %r{https://openlibrary\.org/api/books})
           .to_return(
             status: 200,
             body: {
