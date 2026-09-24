@@ -40,7 +40,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          COUNT="$(gh run list --workflow=ci.yml --commit "$GITHUB_SHA" --status success --json databaseId --jq 'length')"
+          COUNT="$(gh run list --repo "${{ github.repository }}" --workflow=ci.yml --commit "$GITHUB_SHA" --status success --json databaseId --jq 'length')"
           if [[ "$COUNT" -eq 0 ]]; then
             echo "::error::No successful ci.yml run for $GITHUB_SHA; wait for CI on main or re-run it before tagging."
             exit 1
