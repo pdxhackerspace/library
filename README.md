@@ -1,6 +1,15 @@
 # PDX Hackerspace Library
 
 [![CI](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml/badge.svg)](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml)
+[![Lint](https://img.shields.io/github/check-runs/pdxhackerspace/library/main?nameFilter=lint&label=lint)](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/github/check-runs/pdxhackerspace/library/main?nameFilter=test&label=tests)](https://github.com/pdxhackerspace/library/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/actions/workflow/status/pdxhackerspace/library/release.yml?label=release)](https://github.com/pdxhackerspace/library/actions/workflows/release.yml)
+[![CodeQL](https://img.shields.io/github/check-runs/pdxhackerspace/library/main?nameFilter=Analyze%20(ruby)&label=codeql)](https://github.com/pdxhackerspace/library/security/code-scanning)
+
+[![Version](https://img.shields.io/github/v/release/pdxhackerspace/library?label=version&color=blue)](https://github.com/pdxhackerspace/library/releases)
+[![Ruby](https://img.shields.io/badge/Ruby-4.0.5-blue?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Rails](https://img.shields.io/badge/Rails-8.1.4-blue?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A minimal Rails app for tracking physical books that can be loaned at PDX Hackerspace.
 
@@ -142,11 +151,12 @@ SENTRY_TRACES_SAMPLE_RATE=0
 
 The canonical version is in `VERSION`. To release:
 
-1. Bump `VERSION` following semver
-2. Commit and tag: `git tag v0.1.0 && git push origin v0.1.0`
-3. GitHub Actions builds, tests, and pushes `ghcr.io/<owner>/pdxhackerspace-library:latest`, `:0.1.0`, and `:0`
+1. Bump `VERSION` following semver and push to `main`
+2. Wait for the `ci.yml` workflow to pass on that commit
+3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`
+4. The release workflow verifies CI succeeded, builds the image (using a persistent registry cache at `ghcr.io/<owner>/library:buildcache`), and pushes `ghcr.io/<owner>/library:latest`, `:0.1.0`, and `:0`
 
-Images are only built and published on tag pushes, not on every commit.
+Images are only built and published on tag pushes, not on every commit. The release workflow does not re-run tests; it requires a successful CI run on the tagged commit.
 
 ## Production
 

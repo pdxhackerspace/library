@@ -10,19 +10,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: read
   packages: write
-
-env:
-  RAILS_ENV: test
-  DB_HOST: localhost
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
-  DB_PORT: 5432
-  DB_NAME: pdxhackerspace_library_test
-  REDIS_URL: redis://localhost:6379/0
-  ADMIN_EMAIL: admin@example.com
-  ADMIN_PASSWORD: test-password-123
 
 jobs:
   preflight:
@@ -45,52 +35,19 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
 
-  test:
-    needs: preflight
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
+      - name: Verify CI passed for tagged commit
         env:
-          POSTGRES_DB: pdxhackerspace_library_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:8-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up Ruby
-        uses: ./.github/actions/setup-ruby-app
-
-      - name: Set up frontend assets
-        uses: ./.github/actions/setup-frontend
-
-      - name: Prepare database
-        run: bin/rails db:test:prepare
-
-      - name: Run tests
-        run: bin/rails test
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          COUNT="$(gh run list --workflow=ci.yml --commit "$GITHUB_SHA" --status success --json databaseId --jq 'length')"
+          if [[ "$COUNT" -eq 0 ]]; then
+            echo "::error::No successful ci.yml run for $GITHUB_SHA; wait for CI on main or re-run it before tagging."
+            exit 1
+          fi
 
   build-and-push:
-    needs: [preflight, test]
+    needs: preflight
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
@@ -122,5 +79,5 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR }}
-          cache-from: type=gha,scope=library-prod
-          cache-to: type=gha,mode=max,scope=library-prod
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max

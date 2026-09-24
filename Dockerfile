@@ -13,12 +13,20 @@ ENV RAILS_ENV="production" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
 
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      curl libvips postgresql-client libyaml-0-2 tzdata zbar-tools && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 FROM base AS build
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential curl git libpq-dev libvips node-gyp pkg-config python-is-python3 libyaml-dev && \
+    apt-get install --no-install-recommends -y \
+      build-essential git libpq-dev node-gyp pkg-config python-is-python3 libyaml-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY --from=node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node
@@ -53,12 +61,6 @@ ARG APP_VERSION=dev
 ARG GITHUB_REPOSITORY
 ENV APP_VERSION=$APP_VERSION
 ENV GITHUB_REPOSITORY=$GITHUB_REPOSITORY
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libvips postgresql-client libyaml-0-2 tzdata zbar-tools && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /rails /rails
