@@ -1,5 +1,5 @@
 module Books
-  # rubocop:disable Metrics/ClassLength -- NDEF sizing and truncation belong together
+  # rubocop:disable-next Metrics/ClassLength -- NDEF sizing and truncation belong together
   class NfcTagPayload
     Result = Data.define(:url, :tag_url, :json, :json_truncated, :estimated_bytes)
 
@@ -149,5 +149,4 @@ module Books
       header + type_length + id_length
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end

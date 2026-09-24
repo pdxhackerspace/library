@@ -53,9 +53,8 @@ class Loan < ApplicationRecord
   end
 
   def increment_book_borrow_count
-    # rubocop:disable Rails/SkipsModelValidations -- counter columns only
+    # rubocop:disable-next Rails/SkipsModelValidations -- counter columns only
     Book.update_counters(book_id, borrow_count: 1)
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def book_must_be_available_on_checkout

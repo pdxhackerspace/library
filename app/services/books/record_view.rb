@@ -17,13 +17,11 @@ module Books
 
     def call
       if nfc_visit?
-        # rubocop:disable Rails/SkipsModelValidations -- counter columns only
+        # rubocop:disable-next Rails/SkipsModelValidations -- counter columns only
         Book.update_counters(@book.id, view_count: 1, nfc_view_count: 1)
-        # rubocop:enable Rails/SkipsModelValidations
       else
-        # rubocop:disable Rails/SkipsModelValidations -- counter columns only
+        # rubocop:disable-next Rails/SkipsModelValidations -- counter columns only
         Book.update_counters(@book.id, view_count: 1)
-        # rubocop:enable Rails/SkipsModelValidations
       end
       @book.reload
     end
