@@ -1,8 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['photo', 'scanStatus', 'isbnList', 'isbnField', 'authorList', 'authorField', 'subjectList', 'subjectField', 'metadataStatus', 'locationId', 'locationButton', 'customLocationInput']
-  static values = { scanUrl: String, lookupUrl: String, lookupToken: String }
+  static targets = ['photo', 'preview', 'video', 'scanButton', 'stopButton', 'scanStatus', 'isbnList', 'isbnField', 'authorList', 'authorField', 'subjectList', 'subjectField', 'metadataStatus', 'locationId', 'locationButton', 'customLocationInput']
+  static values = { lookupUrl: String, lookupToken: String }
 
   connect() {
     this.lookupTimer = null
@@ -11,48 +11,209 @@ export default class extends Controller {
 
   disconnect() {
     clearTimeout(this.lookupTimer)
+    this.stopCamera()
+    this.terminateOcrWorker()
   }
 
   openCamera() {
-    this.photoTarget.click()
+    if (navigator.mediaDevices?.getUserMedia) {
+      this.startLiveScan()
+    } else {
+      this.photoTarget.click()
+    }
+  }
+
+  stopScan() {
+    this.scanSession = null
+    this.stopCamera()
+    this.setScanStatus('Scan cancelled. You can enter the ISBN manually below.', 'secondary')
+  }
+
+  async startLiveScan() {
+    if (this.scanSession) return
+
+    const session = {}
+    this.scanSession = session
+    this.setScanStatus('Starting camera…', 'secondary')
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    } catch (_error) {
+      this.scanSession = null
+      this.setScanStatus('Could not open the camera. Take a photo instead, or enter the ISBN manually below.', 'warning')
+      this.photoTarget.click()
+      return
+    }
+    if (this.scanSession !== session) return this.stopCamera()
+
+    this.videoTarget.srcObject = this.stream
+    await this.videoTarget.play().catch(() => {})
+    this.previewTarget.classList.remove('d-none')
+    this.scanButtonTarget.classList.add('d-none')
+    this.stopButtonTarget.classList.remove('d-none')
+
+    this.setScanStatus('Loading text recognition…', 'secondary')
+    const worker = await this.ocrWorker().catch(() => null)
+    if (this.scanSession !== session) return
+
+    this.setScanStatus('Hold the ISBN steady in view…', 'secondary')
+    const isbn = await this.pollForIsbn(session, worker)
+    if (this.scanSession !== session) return
+
+    this.scanSession = null
+    this.stopCamera()
+    if (isbn) {
+      this.applyScanResult([isbn])
+    } else {
+      this.giveUpScanning()
+    }
+  }
+
+  // Try every 0.5s for 5s; frames are skipped while a previous attempt is still running.
+  pollForIsbn(session, worker) {
+    const intervalMs = 500
+    const attempts = 10
+
+    return new Promise((resolve) => {
+      let tick = 0
+      let busy = false
+      const finish = (result) => {
+        clearInterval(timer)
+        resolve(result)
+      }
+      const timer = setInterval(async () => {
+        if (this.scanSession !== session) return finish(null)
+        if (tick >= attempts) return finish(null)
+        tick += 1
+        if (busy) return
+
+        busy = true
+        try {
+          const frame = this.captureFrame()
+          const isbn = frame && (await this.findIsbn(frame, worker))
+          if (isbn && this.scanSession === session) finish(isbn)
+        } catch (_error) {
+          // ignore this frame and try the next one
+        } finally {
+          busy = false
+        }
+      }, intervalMs)
+    })
+  }
+
+  captureFrame() {
+    const video = this.videoTarget
+    if (!video.videoWidth) return null
+
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d').drawImage(video, 0, 0)
+    return canvas
+  }
+
+  stopCamera() {
+    this.stream?.getTracks().forEach((track) => track.stop())
+    this.stream = null
+    if (this.hasVideoTarget) this.videoTarget.srcObject = null
+    if (this.hasPreviewTarget) this.previewTarget.classList.add('d-none')
+    if (this.hasScanButtonTarget) this.scanButtonTarget.classList.remove('d-none')
+    if (this.hasStopButtonTarget) this.stopButtonTarget.classList.add('d-none')
+  }
+
+  // OCR first (printed ISBN text), then the barcode detector.
+  async findIsbn(image, worker) {
+    if (worker) {
+      const { data } = await worker.recognize(image)
+      const isbn = this.isbnFromText(data.text)
+      if (isbn) return isbn
+    }
+
+    if ('BarcodeDetector' in window) {
+      const detector = new BarcodeDetector({ formats: ['ean_13'] })
+      const barcodes = await detector.detect(image)
+      return barcodes.map((barcode) => barcode.rawValue).find((code) => this.validIsbn13(code))
+    }
+
+    return null
+  }
+
+  async ocrWorker() {
+    this.ocrWorkerPromise ||= import('tesseract.js').then(async (Tesseract) => {
+      const worker = await (Tesseract.createWorker || Tesseract.default.createWorker)('eng')
+      await worker.setParameters({
+        tessedit_char_whitelist: '0123456789Xx-ISBN',
+        tessedit_pageseg_mode: '11'
+      })
+      return worker
+    })
+    return this.ocrWorkerPromise
+  }
+
+  terminateOcrWorker() {
+    this.ocrWorkerPromise?.then((worker) => worker.terminate()).catch(() => {})
+    this.ocrWorkerPromise = null
+  }
+
+  isbnFromText(text) {
+    const candidates = text.match(/[\dXx][\dXx -]{8,16}[\dXx]/g) || []
+    for (const candidate of candidates) {
+      const code = candidate.replace(/[^\dXx]/g, '').toUpperCase()
+      if (this.validIsbn13(code) || this.validIsbn10(code)) return code
+    }
+    return null
+  }
+
+  applyScanResult(isbns) {
+    this.fillIsbns(isbns)
+    this.setScanStatus(`Found ${isbns.length} ISBN code${isbns.length === 1 ? '' : 's'}.`, 'success')
+    this.scheduleLookup()
+  }
+
+  giveUpScanning() {
+    this.setScanStatus('Could not find an ISBN. Enter it manually below.', 'warning')
+    this.isbnFieldTargets[0]?.querySelector('input')?.focus()
   }
 
   async scanPhoto() {
     const file = this.photoTarget.files[0]
     if (!file) return
 
-    this.setScanStatus('Scanning photo…', 'secondary')
     this.photoTarget.value = ''
-
-    const body = new FormData()
-    body.append('photo', file)
+    this.setScanStatus('Scanning photo…', 'secondary')
 
     try {
-      const response = await fetch(this.scanUrlValue, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'X-CSRF-Token': this.csrfToken
-        },
-        body
-      })
-
-      const data = await response.json()
-      if (!response.ok) {
-        this.setScanStatus(data.error || 'Could not scan photo.', 'warning')
-        return
+      const bitmap = await createImageBitmap(file)
+      const worker = await this.ocrWorker().catch(() => null)
+      let isbn
+      try {
+        isbn = await this.findIsbn(bitmap, worker)
+      } finally {
+        bitmap.close()
       }
 
-      if (data.isbns?.length) {
-        this.fillIsbns(data.isbns)
-        this.setScanStatus(`Found ${data.isbns.length} ISBN code${data.isbns.length === 1 ? '' : 's'}.`, 'success')
-        this.scheduleLookup()
+      if (isbn) {
+        this.applyScanResult([isbn])
       } else {
-        this.setScanStatus('No ISBN barcode found in photo.', 'secondary')
+        this.giveUpScanning()
       }
     } catch (_error) {
-      this.setScanStatus('Could not scan photo.', 'warning')
+      this.giveUpScanning()
     }
+  }
+
+  validIsbn13(code) {
+    if (!/^97[89]\d{10}$/.test(code)) return false
+
+    const sum = [...code.slice(0, 12)].reduce((total, digit, index) => total + Number(digit) * (index % 2 === 0 ? 1 : 3), 0)
+    return (10 - (sum % 10)) % 10 === Number(code[12])
+  }
+
+  validIsbn10(code) {
+    if (!/^\d{9}[\dX]$/.test(code)) return false
+
+    const sum = [...code].reduce((total, char, index) => total + (char === 'X' ? 10 : Number(char)) * (10 - index), 0)
+    return sum % 11 === 0
   }
 
   scheduleLookup() {

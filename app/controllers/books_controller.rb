@@ -46,16 +46,6 @@ class BooksController < ApplicationController
     save_book(create_redirect: false)
   end
 
-  def scan_isbn
-    if params[:photo].blank?
-      render json: { isbns: [], error: 'No photo uploaded.' }, status: :unprocessable_content
-      return
-    end
-
-    isbns = IsbnScanning::BarcodeReader.call(params[:photo])
-    render json: { isbns: isbns }
-  end
-
   def lookup_metadata
     result = Books::Metadata::EnqueueLookup.call(params)
     render json: result.except(:http_status), status: result[:http_status]

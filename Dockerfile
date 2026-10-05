@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      curl libvips postgresql-client libyaml-0-2 tzdata zbar-tools && \
+      curl libvips postgresql-client libyaml-0-2 tzdata && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 FROM base AS build

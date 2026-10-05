@@ -10,7 +10,6 @@ Rails.application.routes.draw do
 
   resources :books do
     collection do
-      post :scan_isbn
       post :lookup_metadata
     end
     member do

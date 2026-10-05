@@ -9,7 +9,6 @@
               class: 'card border-secondary-subtle',
               data: {
                 controller: 'book-form',
-                book_form_scan_url_value: (scan_isbn ? scan_isbn_books_path : ''),
                 book_form_lookup_url_value: (book.persisted? ? lookup_metadata_book_path(book) : lookup_metadata_books_path),
                 book_form_lookup_token_value: lookup_token
               } do |form| %>
@@ -23,17 +22,30 @@
 
     <% if scan_isbn %>
       <div class="mb-3 pb-3 border-bottom border-secondary-subtle">
-        <div class="text-secondary small mb-2">Scan ISBN from cover photo</div>
+        <div class="text-secondary small mb-2">Scan ISBN from the book</div>
         <input type="file"
                accept="image/*"
                capture="environment"
                class="d-none"
                data-book-form-target="photo"
                data-action="change->book-form#scanPhoto">
+        <div class="d-none mb-2" data-book-form-target="preview">
+          <video class="w-100 rounded border border-secondary-subtle"
+                 style="max-height: 20rem; object-fit: cover;"
+                 data-book-form-target="video"
+                 playsinline muted></video>
+        </div>
         <button type="button"
                 class="btn btn-outline-secondary btn-sm"
-                data-action="book-form#openCamera">
-          <i class="bi bi-camera"></i> Take photo
+                data-action="book-form#openCamera"
+                data-book-form-target="scanButton">
+          <i class="bi bi-camera"></i> Scan ISBN
+        </button>
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm d-none"
+                data-action="book-form#stopScan"
+                data-book-form-target="stopButton">
+          Cancel
         </button>
         <div data-book-form-target="scanStatus" class="small mt-2 text-secondary"></div>
       </div>

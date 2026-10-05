@@ -29,8 +29,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       pkg-config \
       postgresql-client \
       python-is-python3 \
-      tzdata \
-      zbar-tools && \
+      tzdata && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 ARG NODE_VERSION=24.9.0
