@@ -57,7 +57,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   test 'create book with write nfc redirects to show with nfc prompt' do
     assert_difference 'Book.count', 1 do
       post books_path, params: {
-        write_nfc: 'Write NFC tag',
+        write_nfc: 'Save and write NFC',
         book: {
           title: 'Tagged Book',
           author_names: ['Someone']
@@ -74,7 +74,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     get new_book_path
     assert_response :success
     assert_select 'input[type=submit][value="Save"]', 1
-    assert_select 'input[type=submit][value="Write NFC tag"]', 1
+    assert_select 'input[type=submit][value="Save and write NFC"]', 1
     assert_select 'input[type=submit][value="Save and add new book"]', 1
   end
 

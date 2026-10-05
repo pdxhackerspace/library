@@ -216,7 +216,10 @@
     <div class="d-flex flex-wrap gap-2">
       <%= form.submit 'Save', class: 'btn btn-primary btn-sm' %>
       <% if local_assigns.fetch(:show_add_another, false) %>
-        <%= form.submit 'Write NFC tag', name: 'write_nfc', class: 'btn btn-outline-secondary btn-sm' %>
+        <%= form.submit 'Save and write NFC',
+                        name: 'write_nfc',
+                        class: 'btn btn-outline-secondary btn-sm d-none',
+                        data: { book_form_target: 'nfcButton' } %>
         <%= form.submit 'Save and add new book', name: 'add_another', class: 'btn btn-outline-secondary btn-sm' %>
       <% end %>
       <%= link_to 'Cancel', book.persisted? ? book : books_path, class: 'btn btn-outline-secondary btn-sm' %>

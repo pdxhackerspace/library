@@ -1,18 +1,28 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['photo', 'preview', 'video', 'scanButton', 'stopButton', 'scanStatus', 'isbnList', 'isbnField', 'authorList', 'authorField', 'subjectList', 'subjectField', 'metadataStatus', 'locationId', 'locationButton', 'customLocationInput']
+  static targets = ['photo', 'preview', 'video', 'scanButton', 'stopButton', 'scanStatus', 'isbnList', 'isbnField', 'authorList', 'authorField', 'subjectList', 'subjectField', 'metadataStatus', 'nfcButton', 'locationId', 'locationButton', 'customLocationInput']
   static values = { lookupUrl: String, lookupToken: String }
 
   connect() {
     this.lookupTimer = null
     this.syncLocationButtons()
+    this.showNfcButton()
   }
 
   disconnect() {
     clearTimeout(this.lookupTimer)
     this.stopCamera()
     this.terminateOcrWorker()
+  }
+
+  // Same device check as nfc_write_controller: Web NFC (Android) or the iOS Shortcuts flow.
+  showNfcButton() {
+    if (!this.hasNfcButtonTarget) return
+
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    if ('NDEFReader' in window || ios) this.nfcButtonTarget.classList.remove('d-none')
   }
 
   openCamera() {
