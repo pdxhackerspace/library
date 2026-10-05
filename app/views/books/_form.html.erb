@@ -51,6 +51,32 @@
       </div>
     <% end %>
 
+    <div class="mb-3">
+      <label class="form-label">ISBN codes</label>
+      <div data-book-form-target="isbnList">
+        <% Array(book.isbn_codes_list).each do |code| %>
+          <div class="input-group input-group-sm mb-2" data-book-form-target="isbnField">
+            <input type="text"
+                   name="book[isbn_codes][]"
+                   value="<%= code %>"
+                   class="form-control form-control-sm"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   data-action="input->book-form#scheduleLookup blur->book-form#scheduleLookup">
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    data-action="book-form#removeIsbnField"
+                    aria-label="Remove ISBN">×</button>
+          </div>
+        <% end %>
+      </div>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              data-action="book-form#addIsbnField">
+        Add ISBN
+      </button>
+    </div>
+
     <div class="mb-3 pb-3 border-bottom border-secondary-subtle">
       <div class="text-secondary small mb-2">Book info lookup</div>
       <% if book.persisted? %>
@@ -100,32 +126,6 @@
       <div id="book_published_on">
         <%= form.date_field :published_on, class: 'form-control form-control-sm' %>
       </div>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">ISBN codes</label>
-      <div data-book-form-target="isbnList">
-        <% Array(book.isbn_codes_list).each do |code| %>
-          <div class="input-group input-group-sm mb-2" data-book-form-target="isbnField">
-            <input type="text"
-                   name="book[isbn_codes][]"
-                   value="<%= code %>"
-                   class="form-control form-control-sm"
-                   inputmode="numeric"
-                   autocomplete="off"
-                   data-action="input->book-form#scheduleLookup blur->book-form#scheduleLookup">
-            <button type="button"
-                    class="btn btn-outline-secondary"
-                    data-action="book-form#removeIsbnField"
-                    aria-label="Remove ISBN">×</button>
-          </div>
-        <% end %>
-      </div>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              data-action="book-form#addIsbnField">
-        Add ISBN
-      </button>
     </div>
 
     <div class="mb-3">

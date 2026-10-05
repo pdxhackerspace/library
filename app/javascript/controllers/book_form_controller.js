@@ -17,6 +17,9 @@ export default class extends Controller {
 
   openCamera() {
     if (navigator.mediaDevices?.getUserMedia) {
+      // Restart cleanly if a previous scan is somehow still marked active.
+      this.scanSession = null
+      this.stopCamera()
       this.startLiveScan()
     } else {
       this.photoTarget.click()
@@ -30,15 +33,26 @@ export default class extends Controller {
   }
 
   async startLiveScan() {
-    if (this.scanSession) return
-
     const session = {}
     this.scanSession = session
     this.setScanStatus('Starting camera…', 'secondary')
 
     try {
+      await this.runLiveScan(session)
+    } catch (_error) {
+      if (this.scanSession === session) {
+        this.scanSession = null
+        this.stopCamera()
+        this.giveUpScanning()
+      }
+    }
+  }
+
+  async runLiveScan(session) {
+    try {
       this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
     } catch (_error) {
+      if (this.scanSession !== session) return
       this.scanSession = null
       this.setScanStatus('Could not open the camera. Take a photo instead, or enter the ISBN manually below.', 'warning')
       this.photoTarget.click()
@@ -46,14 +60,17 @@ export default class extends Controller {
     }
     if (this.scanSession !== session) return this.stopCamera()
 
-    this.videoTarget.srcObject = this.stream
-    await this.videoTarget.play().catch(() => {})
     this.previewTarget.classList.remove('d-none')
     this.scanButtonTarget.classList.add('d-none')
     this.stopButtonTarget.classList.remove('d-none')
+    this.videoTarget.srcObject = this.stream
+    this.videoTarget.play().catch(() => {})
 
     this.setScanStatus('Loading text recognition…', 'secondary')
-    const worker = await this.ocrWorker().catch(() => null)
+    const worker = await Promise.race([
+      this.ocrWorker().catch(() => null),
+      new Promise((resolve) => setTimeout(() => resolve(null), 15000))
+    ])
     if (this.scanSession !== session) return
 
     this.setScanStatus('Hold the ISBN steady in view…', 'secondary')

@@ -14,6 +14,9 @@
         <%= link_to site_name, root_path, class: 'navbar-brand fw-medium' %>
 
         <% if logged_in? %>
+          <% if can_manage_books? %>
+            <%= link_to 'Add book', new_book_path, class: 'btn btn-primary btn-sm ms-auto me-2 order-lg-last' %>
+          <% end %>
           <button class="navbar-toggler btn btn-outline-secondary btn-sm"
                   type="button"
                   data-bs-toggle="collapse"
@@ -72,9 +75,6 @@
 
             <div class="d-flex align-items-center gap-2 ms-lg-auto">
               <span class="text-secondary small d-none d-lg-inline"><%= current_user.name %></span>
-              <% if can_manage_books? %>
-                <%= link_to 'Add book', new_book_path, class: 'btn btn-primary btn-sm' %>
-              <% end %>
               <%= button_to 'Sign out', logout_path, method: :delete, class: 'btn btn-outline-secondary btn-sm' %>
             </div>
           </div>
