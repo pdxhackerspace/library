@@ -73,7 +73,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   test 'new book form shows save write nfc and add another actions' do
     get new_book_path
     assert_response :success
-    assert_select 'input[type=submit][value="Save"]', 1
+    assert_select 'input[type=submit][value="Save & Exit"]', 1
     assert_select 'input[type=submit][value="Save and write NFC"]', 1
     assert_select 'input[type=submit][value="Save and add new book"]', 1
   end
