@@ -10,7 +10,7 @@
               class: 'card border-secondary-subtle',
               data: {
                 controller: 'book-form book-wizard',
-                action: 'submit->book-wizard#submit keydown.enter->book-wizard#advanceOnEnter',
+                action: 'submit->book-wizard#submit keydown.enter->book-wizard#advanceOnEnter book-wizard:leave->book-form#cancelHiddenScan',
                 book_form_lookup_url_value: (book.persisted? ? lookup_metadata_book_path(book) : lookup_metadata_books_path),
                 book_form_lookup_token_value: lookup_token,
                 book_wizard_index_value: initial_step,

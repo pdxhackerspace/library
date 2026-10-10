@@ -58,10 +58,17 @@ export default class extends Controller {
   goTo(index) {
     if (index < 0 || index >= this.stepTargets.length) return
 
+    this.show(index)
+    this.element.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
+
+  // Tells book-form when a step is hidden so it can stop work tied to it, like an ISBN scan.
+  show(index) {
+    const previous = this.indexValue
     this.indexValue = index
     this.reachedValue = Math.max(this.reachedValue, index)
     this.render()
-    this.element.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    if (previous !== index) this.dispatch('leave', { detail: { step: previous } })
   }
 
   canJumpTo(index) {
@@ -131,8 +138,6 @@ export default class extends Controller {
     const index = this.stepIndexFor(event.target)
     if (index < 0 || index === this.indexValue) return
 
-    this.indexValue = index
-    this.reachedValue = Math.max(this.reachedValue, index)
-    this.render()
+    this.show(index)
   }
 }
