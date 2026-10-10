@@ -42,6 +42,12 @@ export default class extends Controller {
     this.setScanStatus('Scan cancelled. You can enter the ISBN manually below.', 'secondary')
   }
 
+  // The wizard moved off the step holding the scanner; don't keep the camera running behind it.
+  cancelHiddenScan() {
+    if (!this.hasScanButtonTarget || this.scanButtonTarget.offsetParent) return
+    if (this.scanSession || this.stream) this.stopScan()
+  }
+
   async startLiveScan() {
     const session = {}
     this.scanSession = session
@@ -199,7 +205,8 @@ export default class extends Controller {
 
   giveUpScanning() {
     this.setScanStatus('Could not find an ISBN. Enter it manually below.', 'warning')
-    this.isbnFieldTargets[0]?.querySelector('input')?.focus()
+    const input = this.isbnFieldTargets[0]?.querySelector('input')
+    if (input?.offsetParent) input.focus()
   }
 
   async scanPhoto() {
