@@ -163,6 +163,13 @@ gh workflow run release.yml --ref main -f bump=patch
 
 Pushing a `vX.Y.Z` tag by hand still works: bump `VERSION`, push to `main`, wait for CI, then `git tag v0.1.0 && git push origin v0.1.0`.
 
+`main` is protected by a ruleset: changes land through pull requests with passing `lint` and `test` checks, and force pushes and deletion are blocked. The built-in `GITHUB_TOKEN` can't bypass rulesets, so manual releases push the version bump with a GitHub App. One-time setup:
+
+1. Create a GitHub App owned by the organization (webhook off) with **Repository permissions → Contents: Read and write**, and install it on this repository only
+2. Generate a private key for the app
+3. In this repository's **Settings → Secrets and variables → Actions**, add the app's Client ID as the variable `RELEASE_APP_CLIENT_ID` and the private key as the secret `RELEASE_APP_PRIVATE_KEY`
+4. In **Settings → Rules → Rulesets → Protect main**, add the app to the bypass list with **Always allow**
+
 Images are only built and published by the release workflow, not on every commit. The release workflow does not re-run tests; it requires a successful CI run on the commit being released (for manual runs, the `main` commit the version bump is made on).
 
 ## Production
