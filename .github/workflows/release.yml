@@ -44,15 +44,25 @@ jobs:
           exit 1
 
       - name: Verify CI passed for release commit
+        timeout-minutes: 20
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          COUNT="$(gh run list --repo "${{ github.repository }}" --workflow=ci.yml --commit "$GITHUB_SHA" --status success --json databaseId --jq 'length')"
-          if [[ "$COUNT" -eq 0 ]]; then
-            echo "::error::No successful ci.yml run for $GITHUB_SHA; wait for CI on main or re-run it before releasing."
-            exit 1
-          fi
+          # A release started right after a merge can beat CI, so wait for
+          # any queued or running ci.yml run on this commit to finish.
+          while true; do
+            RUNS="$(gh run list --repo "${{ github.repository }}" --workflow=ci.yml --commit "$GITHUB_SHA" --json status,conclusion)"
+            if jq -e 'any(.[]; .conclusion == "success")' <<< "$RUNS" > /dev/null; then
+              break
+            fi
+            if ! jq -e 'any(.[]; .status != "completed")' <<< "$RUNS" > /dev/null; then
+              echo "::error::No successful ci.yml run for $GITHUB_SHA; fix or re-run CI on main before releasing."
+              exit 1
+            fi
+            echo "Waiting for ci.yml on $GITHUB_SHA to finish..."
+            sleep 20
+          done
 
       # main is protected and GITHUB_TOKEN can't bypass rulesets, so the
       # version bump is pushed by a GitHub App that is a bypass actor.

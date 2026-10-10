@@ -151,7 +151,7 @@ SENTRY_TRACES_SAMPLE_RATE=0
 
 The canonical version is in `VERSION`. To release from GitHub:
 
-1. Wait for the `ci.yml` workflow to pass on the latest `main` commit
+1. Make sure the `ci.yml` workflow passes (or is still running) on the latest `main` commit; the release waits up to 20 minutes for it to finish
 2. Go to **Actions → Release - Build and Push Image → Run workflow**, choose `main`, and pick which part of the version to bump (`patch` by default, or `minor` / `major`)
 3. The workflow verifies CI succeeded, bumps `VERSION`, commits it to `main` as `Release vX.Y.Z`, pushes the `vX.Y.Z` tag, then builds the image (using a persistent registry cache at `ghcr.io/<owner>/library:buildcache`) and pushes `ghcr.io/<owner>/library:latest`, `:X.Y.Z`, and `:X`
 
