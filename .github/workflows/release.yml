@@ -1,5 +1,15 @@
 name: Release - Build and Push Image
 
+# The newest v* git tag is the source of truth for the current version; there
+# is no VERSION file. Running this workflow picks the next version from a bump
+# level, builds and publishes the image, then tags the commit. Only a tag is
+# pushed, so it works with main protected and needs nothing beyond GITHUB_TOKEN.
+#
+# Usage: gh workflow run release.yml -f bump=minor
+#        gh workflow run release.yml -f bump=patch -f dry_run=true
+#
+# Pushing a vX.Y.Z tag by hand also builds and publishes that version.
+
 on:
   push:
     tags:
@@ -14,9 +24,13 @@ on:
           - minor
           - major
         default: patch
+      dry_run:
+        description: Compute and validate only; do not build, tag, or push
+        type: boolean
+        default: false
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 permissions:
@@ -24,18 +38,12 @@ permissions:
   contents: read
 
 jobs:
-  preflight:
-    # Manual releases push their own tag with the release app's token, which
-    # would start a second run here; skip tag pushes made by a bot.
-    if: github.event_name == 'workflow_dispatch' || !endsWith(github.actor, '[bot]')
+  plan:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      major: ${{ steps.version.outputs.major }}
-      sha: ${{ steps.version.outputs.sha }}
+      version: ${{ steps.plan.outputs.version }}
+      major: ${{ steps.plan.outputs.major }}
+      sha: ${{ steps.plan.outputs.sha }}
     steps:
       - name: Require main for manual releases
         if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
@@ -43,115 +51,99 @@ jobs:
           echo "::error::Manual releases must be run from main (got $GITHUB_REF)."
           exit 1
 
-      - name: Verify CI passed for release commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          COUNT="$(gh run list --repo "${{ github.repository }}" --workflow=ci.yml --commit "$GITHUB_SHA" --status success --json databaseId --jq 'length')"
-          if [[ "$COUNT" -eq 0 ]]; then
-            echo "::error::No successful ci.yml run for $GITHUB_SHA; wait for CI on main or re-run it before releasing."
-            exit 1
-          fi
-
-      # main is protected and GITHUB_TOKEN can't bypass rulesets, so the
-      # version bump is pushed by a GitHub App that is a bypass actor.
-      - name: Create release app token
-        id: app-token
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-          permission-contents: write
-
       - name: Checkout code
-        if: github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v6
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Bump VERSION, commit, and tag
-        id: bump
-        if: github.event_name == 'workflow_dispatch'
+      - name: Resolve next version
+        id: plan
         env:
           BUMP: ${{ inputs.bump }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
-          CURRENT="$(tr -d '[:space:]' < VERSION)"
-          if [[ ! "$CURRENT" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            echo "::error::VERSION ($CURRENT) must be MAJOR.MINOR.PATCH"
-            exit 1
-          fi
-          MAJOR="${BASH_REMATCH[1]}"
-          MINOR="${BASH_REMATCH[2]}"
-          PATCH="${BASH_REMATCH[3]}"
-          case "$BUMP" in
-            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-            patch) PATCH=$((PATCH + 1)) ;;
-            *) echo "::error::Unknown bump: $BUMP"; exit 1 ;;
-          esac
-          VERSION="$MAJOR.$MINOR.$PATCH"
-          TAG="v$VERSION"
-
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
-            echo "::error::Tag $TAG already exists."
-            exit 1
-          fi
-
-          echo "$VERSION" > VERSION
-          BOT_ID="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
-          git config user.name "${APP_SLUG}[bot]"
-          git config user.email "${BOT_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
-          git commit -am "Release $TAG"
-          git tag -a "$TAG" -m "Release $TAG"
-          git push --atomic origin "HEAD:main" "refs/tags/$TAG"
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "Released $CURRENT -> $VERSION ($BUMP)" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Determine version
-        id: version
-        env:
-          BUMPED_VERSION: ${{ steps.bump.outputs.version }}
-          BUMPED_SHA: ${{ steps.bump.outputs.sha }}
-        run: |
-          set -euo pipefail
-          if [[ -n "$BUMPED_VERSION" ]]; then
-            VERSION="$BUMPED_VERSION"
-            SHA="$BUMPED_SHA"
-          else
-            TAG="${GITHUB_REF_NAME}"
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            TAG="$GITHUB_REF_NAME"
             if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
               echo "::error::Tag must match vMAJOR.MINOR.PATCH"
               exit 1
             fi
+            LATEST="(pushed by hand)"
             VERSION="${TAG#v}"
-            SHA="$GITHUB_SHA"
+          else
+            # awk rather than `head -1`: head closes the pipe early and trips pipefail.
+            LATEST="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | awk 'NR==1')"
+            CURRENT="${LATEST#v}"
+            CURRENT="${CURRENT:-0.0.0}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT%%-*}"
+            case "$BUMP" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              patch) PATCH=$((PATCH + 1)) ;;
+              *) echo "::error::Unknown bump: $BUMP"; exit 1 ;;
+            esac
+            VERSION="$MAJOR.$MINOR.$PATCH"
+            if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+              echo "::error::Tag v$VERSION already exists."
+              exit 1
+            fi
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "major=${VERSION%%.*}" >> "$GITHUB_OUTPUT"
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "version=$VERSION"
+            echo "major=${VERSION%%.*}"
+            echo "sha=$GITHUB_SHA"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Release plan"
+            echo ''
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| previous | \`${LATEST:-none}\` |"
+            echo "| next | \`v$VERSION\` |"
+            echo "| commit | \`$GITHUB_SHA\` |"
+            echo "| dry run | \`${{ inputs.dry_run || false }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify CI passed for release commit
+        timeout-minutes: 20
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # A release started right after a merge can beat CI, so wait for
+          # any queued or running ci.yml run on this commit to finish.
+          while true; do
+            RUNS="$(gh run list --repo "${{ github.repository }}" --workflow=ci.yml --commit "$GITHUB_SHA" --json status,conclusion)"
+            if jq -e 'any(.[]; .conclusion == "success")' <<< "$RUNS" > /dev/null; then
+              break
+            fi
+            if ! jq -e 'any(.[]; .status != "completed")' <<< "$RUNS" > /dev/null; then
+              echo "::error::No successful ci.yml run for $GITHUB_SHA; fix or re-run CI on main before releasing."
+              exit 1
+            fi
+            echo "Waiting for ci.yml on $GITHUB_SHA to finish..."
+            sleep 20
+          done
 
   build-and-push:
-    needs: preflight
+    needs: plan
+    if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
-      APP_VERSION: ${{ needs.preflight.outputs.version }}
-      MAJOR: ${{ needs.preflight.outputs.major }}
+      APP_VERSION: ${{ needs.plan.outputs.version }}
+      MAJOR: ${{ needs.plan.outputs.major }}
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.preflight.outputs.sha }}
+          ref: ${{ needs.plan.outputs.sha }}
 
       - uses: docker/login-action@v4
         with:
@@ -177,3 +169,27 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.MAJOR }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+
+      # Tag only after the image is published, so a failed build leaves no tag
+      # behind. A tag pushed with GITHUB_TOKEN doesn't start another run.
+      - name: Tag commit and publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="v$APP_VERSION"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "$TAG"
+          fi
+          gh release view "$TAG" > /dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag
+
+          {
+            echo "### Released \`$TAG\`"
+            echo ''
+            echo "- \`$REGISTRY/$IMAGE_NAME:$APP_VERSION\`"
+            echo "- \`$REGISTRY/$IMAGE_NAME:latest\`"
+            echo "- \`$REGISTRY/$IMAGE_NAME:$MAJOR\`"
+          } >> "$GITHUB_STEP_SUMMARY"

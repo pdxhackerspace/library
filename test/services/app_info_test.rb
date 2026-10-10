@@ -15,10 +15,10 @@ class AppInfoTest < ActiveSupport::TestCase
     AppInfo.instance_variable_set(:@github_repo_url, nil)
   end
 
-  test 'version reads VERSION file when APP_VERSION is unset' do
+  test 'version is dev when APP_VERSION is unset' do
     ENV.delete('APP_VERSION')
 
-    assert_equal Rails.root.join('VERSION').read.strip, AppInfo.version
+    assert_equal 'dev', AppInfo.version
   end
 
   test 'version prefers APP_VERSION environment variable' do

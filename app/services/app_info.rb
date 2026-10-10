@@ -2,11 +2,7 @@ module AppInfo
   module_function
 
   def version
-    @version ||= begin
-      ENV.fetch('APP_VERSION') { read_version_file }
-    rescue Errno::ENOENT
-      'dev'
-    end
+    @version ||= ENV['APP_VERSION'].presence || 'dev'
   end
 
   def github_repo_url
@@ -22,10 +18,6 @@ module AppInfo
     return if repository.blank?
 
     "https://github.com/#{repository.sub(%r{\Ahttps?://github\.com/}, '').delete_suffix('.git')}"
-  end
-
-  def read_version_file
-    Rails.root.join('VERSION').read.strip
   end
 
   def detect_git_repository
