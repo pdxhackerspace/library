@@ -149,14 +149,21 @@ SENTRY_TRACES_SAMPLE_RATE=0
 
 ## Versioning and releases
 
-The canonical version is in `VERSION`. To release:
+The canonical version is in `VERSION`. To release from GitHub:
 
-1. Bump `VERSION` following semver and push to `main`
-2. Wait for the `ci.yml` workflow to pass on that commit
-3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`
-4. The release workflow verifies CI succeeded, builds the image (using a persistent registry cache at `ghcr.io/<owner>/library:buildcache`), and pushes `ghcr.io/<owner>/library:latest`, `:0.1.0`, and `:0`
+1. Wait for the `ci.yml` workflow to pass on the latest `main` commit
+2. Go to **Actions → Release - Build and Push Image → Run workflow**, choose `main`, and pick which part of the version to bump (`patch` by default, or `minor` / `major`)
+3. The workflow verifies CI succeeded, bumps `VERSION`, commits it to `main` as `Release vX.Y.Z`, pushes the `vX.Y.Z` tag, then builds the image (using a persistent registry cache at `ghcr.io/<owner>/library:buildcache`) and pushes `ghcr.io/<owner>/library:latest`, `:X.Y.Z`, and `:X`
 
-Images are only built and published on tag pushes, not on every commit. The release workflow does not re-run tests; it requires a successful CI run on the tagged commit.
+The same thing from the command line:
+
+```bash
+gh workflow run release.yml --ref main -f bump=patch
+```
+
+Pushing a `vX.Y.Z` tag by hand still works: bump `VERSION`, push to `main`, wait for CI, then `git tag v0.1.0 && git push origin v0.1.0`.
+
+Images are only built and published by the release workflow, not on every commit. The release workflow does not re-run tests; it requires a successful CI run on the commit being released (for manual runs, the `main` commit the version bump is made on).
 
 ## Production
 
