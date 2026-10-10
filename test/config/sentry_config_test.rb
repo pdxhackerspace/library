@@ -51,10 +51,10 @@ class SentryConfigTest < ActiveSupport::TestCase
     assert_equal '1.2.3', SentryConfig.release
   end
 
-  test 'release falls back to version file' do
+  test 'release is nil without app version' do
     ENV.delete('APP_VERSION')
 
-    assert_equal Rails.root.join('VERSION').read.strip, SentryConfig.release
+    assert_nil SentryConfig.release
   end
 
   private

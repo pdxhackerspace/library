@@ -20,13 +20,7 @@ module SentryConfig
   end
 
   def release
-    ENV['APP_VERSION'].presence || read_version_file
-  rescue Errno::ENOENT
-    nil
-  end
-
-  def read_version_file
-    Rails.root.join('VERSION').read.strip
+    ENV['APP_VERSION'].presence
   end
 end
 
