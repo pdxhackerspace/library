@@ -4,7 +4,7 @@ inputs:
   ruby-version:
     description: Ruby version
     required: false
-    default: '4.0.5'
+    default: '4.0.7'
 runs:
   using: composite
   steps:

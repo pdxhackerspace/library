@@ -7,7 +7,7 @@
 [![CodeQL](https://img.shields.io/github/check-runs/pdxhackerspace/library/main?nameFilter=Analyze%20(ruby)&label=codeql)](https://github.com/pdxhackerspace/library/security/code-scanning)
 
 [![Version](https://img.shields.io/github/v/release/pdxhackerspace/library?label=version&color=blue)](https://github.com/pdxhackerspace/library/releases)
-[![Ruby](https://img.shields.io/badge/Ruby-4.0.5-blue?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Ruby](https://img.shields.io/badge/Ruby-4.0.7-blue?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
 [![Rails](https://img.shields.io/badge/Rails-8.1.4-blue?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -15,7 +15,7 @@ A minimal Rails app for tracking physical books that can be loaned at PDX Hacker
 
 ## Stack
 
-- Rails 8.1, Ruby 4.0.5
+- Rails 8.1, Ruby 4.0.7
 - PostgreSQL 16, Redis 8, Sidekiq 8
 - Bootstrap 5.3, Hotwire (Turbo + Stimulus)
 - Docker Compose for local dev, test, lint, and production-style deployment

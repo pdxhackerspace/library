@@ -15,7 +15,7 @@ x-web-common: &web-common
     dockerfile: Dockerfile.dev
     pull: true
     args:
-      RUBY_VERSION: "4.0.5"
+      RUBY_VERSION: "4.0.7"
   image: pdxhackerspace_library_dev:latest
   env_file:
     - .env

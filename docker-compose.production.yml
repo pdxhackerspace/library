@@ -13,7 +13,7 @@ x-web-common: &web-common
     context: .
     pull: true
     args:
-      RUBY_VERSION: "4.0.5"
+      RUBY_VERSION: "4.0.7"
       APP_VERSION: ${APP_VERSION:-dev}
   image: pdxhackerspace_library_web:latest
   env_file:

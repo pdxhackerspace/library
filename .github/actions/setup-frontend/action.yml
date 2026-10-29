@@ -3,12 +3,12 @@ description: Cache and build CSS when needed
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v7
       with:
         node-version-file: '.node-version'
         cache: yarn
 
-    - uses: actions/cache@v5
+    - uses: actions/cache@v6
       id: frontend-cache
       with:
         path: |
