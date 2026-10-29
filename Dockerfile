@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1
 
-ARG RUBY_VERSION=4.0.5
+ARG RUBY_VERSION=4.0.7
 FROM registry.docker.com/library/ruby:$RUBY_VERSION-slim AS base
-ARG RUBY_VERSION=4.0.5
+ARG RUBY_VERSION=4.0.7
 RUN test "$(ruby -e 'print RUBY_VERSION')" = "${RUBY_VERSION}" || \
     (echo "Expected Ruby ${RUBY_VERSION}, got $(ruby -v)" >&2; exit 1)
 

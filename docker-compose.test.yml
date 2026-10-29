@@ -12,7 +12,7 @@ x-web-common: &web-common
     context: .
     dockerfile: Dockerfile.test
     args:
-      RUBY_VERSION: "4.0.5"
+      RUBY_VERSION: "4.0.7"
   image: pdxhackerspace_library_test:latest
   env_file:
     - .env

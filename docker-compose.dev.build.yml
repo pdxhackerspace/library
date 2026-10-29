@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile.dev
       pull: true
       args:
-        RUBY_VERSION: "4.0.5"
+        RUBY_VERSION: "4.0.7"
 
   pdxhackerspace-library-dev-sidekiq:
     build:
@@ -18,4 +18,4 @@ services:
       dockerfile: Dockerfile.dev
       pull: true
       args:
-        RUBY_VERSION: "4.0.5"
+        RUBY_VERSION: "4.0.7"

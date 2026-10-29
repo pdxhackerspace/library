@@ -52,7 +52,7 @@ jobs:
           exit 1
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -141,7 +141,7 @@ jobs:
       APP_VERSION: ${{ needs.plan.outputs.version }}
       MAJOR: ${{ needs.plan.outputs.major }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.plan.outputs.sha }}
 

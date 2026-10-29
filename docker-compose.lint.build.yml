@@ -11,6 +11,6 @@ services:
       dockerfile: Dockerfile.rubocop
       pull: true
       args:
-        RUBY_VERSION: "4.0.5"
+        RUBY_VERSION: "4.0.7"
         RUBOCOP_VERSION: "1.91.0"
         RUBOCOP_RAILS_VERSION: "2.38.0"
