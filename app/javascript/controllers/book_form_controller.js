@@ -84,7 +84,7 @@ export default class extends Controller {
     if (!playing) {
       this.scanSession = null
       this.stopCamera()
-      this.setScanStatus('Could not show the camera. Take a photo instead, or enter the ISBN manually below.', 'warning')
+      this.giveUpScanning('Could not show the camera. Enter the ISBN manually below, or tap Scan ISBN to try again.')
       return
     }
 
@@ -244,8 +244,8 @@ export default class extends Controller {
     this.scheduleLookup()
   }
 
-  giveUpScanning() {
-    this.setScanStatus('Could not find an ISBN. Enter it manually below.', 'warning')
+  giveUpScanning(message = 'Could not find an ISBN. Enter it manually below.') {
+    this.setScanStatus(message, 'warning')
     const input = this.isbnFieldTargets[0]?.querySelector('input')
     if (input?.offsetParent) input.focus()
   }
