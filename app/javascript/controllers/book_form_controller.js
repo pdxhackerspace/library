@@ -79,8 +79,8 @@ export default class extends Controller {
     this.previewTarget.classList.remove('d-none')
     this.scanButtonTarget.classList.add('d-none')
     this.stopButtonTarget.classList.remove('d-none')
-    this.videoTarget.srcObject = this.stream
-    this.videoTarget.play().catch(() => {})
+    await this.playPreview(session)
+    if (this.scanSession !== session) return
 
     this.setScanStatus('Loading text recognition…', 'secondary')
     const worker = await Promise.race([
@@ -100,6 +100,37 @@ export default class extends Controller {
     } else {
       this.giveUpScanning()
     }
+  }
+
+  // Safari leaves a camera <video> blank unless it is muted/inline as properties and play() waits for metadata.
+  async playPreview(session) {
+    const video = this.videoTarget
+    video.muted = true
+    video.playsInline = true
+    video.srcObject = this.stream
+
+    if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise((resolve) => {
+        video.addEventListener('loadedmetadata', resolve, { once: true })
+        setTimeout(resolve, 3000)
+      })
+    }
+    if (this.scanSession !== session) return
+
+    try {
+      await video.play()
+    } catch (_error) {
+      // Autoplay was refused; wait for a tap on the preview (resumePreview) before scanning frames.
+      this.setScanStatus('Tap the preview to show the camera.', 'secondary')
+      await new Promise((resolve) => {
+        video.addEventListener('playing', resolve, { once: true })
+        setTimeout(resolve, 30000)
+      })
+    }
+  }
+
+  resumePreview() {
+    if (this.videoTarget.paused && this.videoTarget.srcObject) this.videoTarget.play().catch(() => {})
   }
 
   // Try every 0.5s for 5s; frames are skipped while a previous attempt is still running.
