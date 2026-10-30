@@ -79,8 +79,14 @@ export default class extends Controller {
     this.previewTarget.classList.remove('d-none')
     this.scanButtonTarget.classList.add('d-none')
     this.stopButtonTarget.classList.remove('d-none')
-    await this.playPreview(session)
+    const playing = await this.playPreview(session)
     if (this.scanSession !== session) return
+    if (!playing) {
+      this.scanSession = null
+      this.stopCamera()
+      this.setScanStatus('Could not show the camera. Take a photo instead, or enter the ISBN manually below.', 'warning')
+      return
+    }
 
     this.setScanStatus('Loading text recognition…', 'secondary')
     const worker = await Promise.race([
@@ -115,17 +121,21 @@ export default class extends Controller {
         setTimeout(resolve, 3000)
       })
     }
-    if (this.scanSession !== session) return
+    if (this.scanSession !== session) return false
 
     try {
       await video.play()
+      return true
     } catch (_error) {
+      if (this.scanSession !== session) return false
+
       // Autoplay was refused; wait for a tap on the preview (resumePreview) before scanning frames.
       this.setScanStatus('Tap the preview to show the camera.', 'secondary')
-      await new Promise((resolve) => {
-        video.addEventListener('playing', resolve, { once: true })
-        setTimeout(resolve, 30000)
+      const playing = await new Promise((resolve) => {
+        video.addEventListener('playing', () => resolve(true), { once: true })
+        setTimeout(() => resolve(false), 30000)
       })
+      return playing && this.scanSession === session
     }
   }
 
