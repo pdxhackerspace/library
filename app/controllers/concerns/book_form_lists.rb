@@ -27,10 +27,9 @@ module BookFormLists
                             description publisher page_count language copies_count
                             metadata_source source_url metadata_fetched_at
                           ])
-    attrs[:author_names] = Array(params.dig(:book, :author_names))
-    attrs[:subject_names] = Array(params.dig(:book, :subject_names))
-    attrs[:isbn_codes] = Array(params.dig(:book, :isbn_codes))
-    attrs[:pending_cover_urls] = Array(params.dig(:book, :pending_cover_urls))
+    %i[author_names subject_names isbn_codes pending_cover_urls cover_uploads remove_cover_ids].each do |key|
+      attrs[key] = Array(params.dig(:book, key))
+    end
     attrs[:custom_location_name] = params.dig(:book, :custom_location_name)
     attrs
   end

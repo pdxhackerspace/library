@@ -11,18 +11,15 @@ module Books
     end
 
     def call
-      @book.assign_attributes(book_attributes)
-      assign_location!
-      @book.author_names_list = author_names_list
-      @book.subject_names_list = subject_names_list
-      @book.isbn_codes_list = isbn_codes_list
+      assign_form_values
+      unless cover_changes.valid?
+        add_cover_errors
+        return false
+      end
 
       Book.transaction do
         @book.save!
-        sync_authors!
-        sync_subjects!
-        sync_isbns!
-        attach_pending_covers!
+        sync_associations!
       end
 
       true
@@ -31,6 +28,32 @@ module Books
     end
 
     private
+
+    def assign_form_values
+      @book.assign_attributes(book_attributes)
+      assign_location!
+      @book.author_names_list = author_names_list
+      @book.subject_names_list = subject_names_list
+      @book.isbn_codes_list = isbn_codes_list
+    end
+
+    def sync_associations!
+      sync_authors!
+      sync_subjects!
+      sync_isbns!
+      cover_changes.apply!
+      attach_pending_covers!
+    end
+
+    def cover_changes
+      @cover_changes ||= CoverChanges.new(@book, @params)
+    end
+
+    # Runs model validations too so the form shows every problem at once.
+    def add_cover_errors
+      @book.valid?
+      cover_changes.errors.each { |message| @book.errors.add(:base, message) }
+    end
 
     def book_attributes
       @params.slice(*METADATA_FIELDS)

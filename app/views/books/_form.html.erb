@@ -188,6 +188,15 @@
       </div>
 
       <div class="mb-3">
+        <%= form.label :cover_uploads, 'Upload cover photos', class: 'form-label' %>
+        <%= form.file_field :cover_uploads,
+                            multiple: true,
+                            accept: Books::CoverChanges::CONTENT_TYPES.join(','),
+                            class: 'form-control form-control-sm' %>
+        <div class="form-text">JPEG, PNG, WebP, or GIF, up to 10 MB each. Take a photo or choose files.</div>
+      </div>
+
+      <div class="mb-3">
         <%= form.label :notes, 'Staff notes', class: 'form-label' %>
         <%= form.text_area :notes, rows: 3, class: 'form-control form-control-sm' %>
         <div class="form-text">Internal notes only. Not filled from ISBN lookup.</div>
