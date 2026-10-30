@@ -1,11 +1,25 @@
 <% cover_urls = Array(local_assigns[:cover_urls]).compact_blank %>
-<% existing_urls = book&.covers_attached? ? book.covers.map { |cover| url_for(cover) } : [] %>
-<% preview_urls = (existing_urls + cover_urls).uniq %>
+<% existing_covers = book&.covers_attached? ? book.covers.to_a : [] %>
+<% existing_urls = existing_covers.map { |cover| url_for(cover) } %>
+<% pending_urls = cover_urls - existing_urls %>
 
-<% if preview_urls.any? %>
+<% if existing_covers.any? || pending_urls.any? %>
   <div class="text-secondary small mb-2">Covers</div>
   <div class="d-flex flex-wrap gap-2 mb-2">
-    <% preview_urls.each do |url| %>
+    <% existing_covers.zip(existing_urls).each do |cover, url| %>
+      <div class="text-center">
+        <img src="<%= url %>" alt="" class="rounded border border-secondary-subtle d-block" style="height: 96px; width: auto;">
+        <div class="form-check form-check-inline small mt-1 me-0">
+          <input type="checkbox"
+                 class="form-check-input"
+                 name="book[remove_cover_ids][]"
+                 value="<%= cover.id %>"
+                 id="remove_cover_<%= cover.id %>">
+          <label class="form-check-label" for="remove_cover_<%= cover.id %>">Remove</label>
+        </div>
+      </div>
+    <% end %>
+    <% pending_urls.each do |url| %>
       <img src="<%= url %>" alt="" class="rounded border border-secondary-subtle" style="height: 96px; width: auto;">
     <% end %>
   </div>
