@@ -111,6 +111,8 @@ module Books
 
     def attach_pending_covers!
       return if pending_cover_urls.blank?
+      # Lookup covers may be the ones just removed, so don't bring them back.
+      return if cover_changes.removing?
       return if @book.covers_attached?
 
       Metadata::CoverImporter.attach_from_urls(@book, pending_cover_urls)

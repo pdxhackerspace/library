@@ -24,6 +24,10 @@ module Books
       errors.empty?
     end
 
+    def removing?
+      remove_ids.any?
+    end
+
     def apply!
       remove!
       @book.covers.attach(uploads) if uploads.any?
@@ -35,11 +39,14 @@ module Books
       Array(@params[:cover_uploads]).select { |upload| upload.respond_to?(:content_type) }
     end
 
-    def remove!
-      ids = Array(@params[:remove_cover_ids]).compact_blank
-      return if ids.empty?
+    def remove_ids
+      Array(@params[:remove_cover_ids]).compact_blank
+    end
 
-      @book.covers.attachments.where(id: ids).find_each(&:purge_later)
+    def remove!
+      return unless removing?
+
+      @book.covers.attachments.where(id: remove_ids).find_each(&:purge_later)
       @book.covers_attachments.reset
     end
   end

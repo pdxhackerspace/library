@@ -39,5 +39,17 @@ module Books
 
       assert_not book.reload.covers_attached?
     end
+
+    test 'removing covers does not re-attach lookup covers' do
+      book = books(:pragmatic)
+      book.covers.attach(io: file_fixture('cover.png').open, filename: 'old.png', content_type: 'image/png')
+      cover_id = book.covers.attachments.first.id
+
+      assert Books::Save.new(book, save_params(book, remove_cover_ids: [cover_id.to_s],
+                                                     pending_cover_urls: ['https://covers.example.com/old.png'])).call
+
+      assert_not book.reload.covers_attached?
+      assert_not_requested :get, 'https://covers.example.com/old.png'
+    end
   end
 end
