@@ -79,8 +79,14 @@ export default class extends Controller {
     this.previewTarget.classList.remove('d-none')
     this.scanButtonTarget.classList.add('d-none')
     this.stopButtonTarget.classList.remove('d-none')
-    this.videoTarget.srcObject = this.stream
-    this.videoTarget.play().catch(() => {})
+    const playing = await this.playPreview(session)
+    if (this.scanSession !== session) return
+    if (!playing) {
+      this.scanSession = null
+      this.stopCamera()
+      this.giveUpScanning('Could not show the camera. Enter the ISBN manually below, or tap Scan ISBN to try again.')
+      return
+    }
 
     this.setScanStatus('Loading text recognition…', 'secondary')
     const worker = await Promise.race([
@@ -100,6 +106,41 @@ export default class extends Controller {
     } else {
       this.giveUpScanning()
     }
+  }
+
+  // Safari leaves a camera <video> blank unless it is muted/inline as properties and play() waits for metadata.
+  async playPreview(session) {
+    const video = this.videoTarget
+    video.muted = true
+    video.playsInline = true
+    video.srcObject = this.stream
+
+    if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise((resolve) => {
+        video.addEventListener('loadedmetadata', resolve, { once: true })
+        setTimeout(resolve, 3000)
+      })
+    }
+    if (this.scanSession !== session) return false
+
+    try {
+      await video.play()
+      return true
+    } catch (_error) {
+      if (this.scanSession !== session) return false
+
+      // Autoplay was refused; wait for a tap on the preview (resumePreview) before scanning frames.
+      this.setScanStatus('Tap the preview to show the camera.', 'secondary')
+      const playing = await new Promise((resolve) => {
+        video.addEventListener('playing', () => resolve(true), { once: true })
+        setTimeout(() => resolve(false), 30000)
+      })
+      return playing && this.scanSession === session
+    }
+  }
+
+  resumePreview() {
+    if (this.videoTarget.paused && this.videoTarget.srcObject) this.videoTarget.play().catch(() => {})
   }
 
   // Try every 0.5s for 5s; frames are skipped while a previous attempt is still running.
@@ -203,8 +244,8 @@ export default class extends Controller {
     this.scheduleLookup()
   }
 
-  giveUpScanning() {
-    this.setScanStatus('Could not find an ISBN. Enter it manually below.', 'warning')
+  giveUpScanning(message = 'Could not find an ISBN. Enter it manually below.') {
+    this.setScanStatus(message, 'warning')
     const input = this.isbnFieldTargets[0]?.querySelector('input')
     if (input?.offsetParent) input.focus()
   }
