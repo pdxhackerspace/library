@@ -53,5 +53,18 @@ module Books
 
       assert book.reload.updated_at > 1.minute.ago
     end
+
+    test 'renaming or removing a location bumps its books updated_at' do
+      book = books(:electronics)
+      book.update!(updated_at: 2.days.ago)
+      locations(:shelf_a1).update!(name: 'Shelf A1 (top)')
+      assert book.reload.updated_at > 1.minute.ago
+
+      book.update!(updated_at: 2.days.ago)
+      locations(:shelf_a1).destroy!
+      book.reload
+      assert_nil book.location_id
+      assert book.updated_at > 1.minute.ago
+    end
   end
 end
