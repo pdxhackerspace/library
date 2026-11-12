@@ -1,0 +1,5 @@
+indexer:
+  name: RAG indexer
+  token_digest: <%= Digest::SHA256.hexdigest('lib_test-indexer-token') %>
+  token_prefix: lib_test-i
+  created_by: admin

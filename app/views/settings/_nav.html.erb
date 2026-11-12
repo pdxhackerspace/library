@@ -2,5 +2,6 @@
   <%= link_to 'Export', settings_path(anchor: 'export'), class: "settings-nav-item #{'active' if local_assigns[:active] == :export}" %>
   <%= link_to 'General', settings_path(anchor: 'general'), class: "settings-nav-item #{'active' if local_assigns[:active].in?([nil, :general])}" %>
   <%= link_to 'Locations', settings_path(anchor: 'locations'), class: "settings-nav-item #{'active' if local_assigns[:active] == :locations}" %>
+  <%= link_to 'API keys', settings_path(anchor: 'api-keys'), class: "settings-nav-item #{'active' if local_assigns[:active] == :api_keys}" %>
   <%= link_to 'Matomo', settings_path(anchor: 'matomo'), class: "settings-nav-item #{'active' if local_assigns[:active] == :matomo}" %>
 </nav>

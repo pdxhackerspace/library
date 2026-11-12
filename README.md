@@ -103,6 +103,22 @@ NFC_TAG_MAX_BYTES=496
 
 Use NTAG215 tags or larger for Android dual-record writes. Set `APP_BASE_URL` so written URLs use your public host.
 
+## Catalog feed (for search and RAG indexers)
+
+`GET /api/v1/catalog` returns the catalog as [JSON Lines](https://jsonlines.org/) (`application/jsonl`), one book per line. It's meant for search and RAG indexers.
+
+Each record holds static catalog data only: id, canonical `url`, title, subtitle, authors, subjects, ISBNs, publisher, `published_on`, language, page count, location, copies, description, notes, ebook URL, cover URL, metadata source, `added_on`/`added_at` (when the book was added to the library), and `updated_at`. It also has a ready-to-embed `text` field. Loans, borrowers, availability, and view/borrow counts are never included.
+
+Each client needs its own API key. Admins create and revoke keys under **Settings → API keys**. A key is shown once, when it's created; only its SHA-256 digest is stored.
+
+```bash
+curl -H "Authorization: Bearer lib_..." https://library.example.com/api/v1/catalog
+```
+
+- `?since=2026-11-01T00:00:00Z` returns only books changed at or after that time, for incremental re-indexing. Deleted books aren't reported, so do a full fetch now and then to prune them.
+- Responses carry an `ETag`; send `If-None-Match` to get `304 Not Modified` when nothing changed.
+- Book and cover URLs use `APP_BASE_URL` when it's set.
+
 ## Guest browsing (on-space)
 
 Visitors on your hackerspace network can browse the catalog without signing in. Set comma-separated CIDRs in `.env`:

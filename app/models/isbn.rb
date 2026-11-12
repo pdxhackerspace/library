@@ -1,5 +1,5 @@
 class Isbn < ApplicationRecord
-  belongs_to :book
+  belongs_to :book, touch: true
 
   validates :code, presence: true
   validate :code_must_be_valid_isbn
