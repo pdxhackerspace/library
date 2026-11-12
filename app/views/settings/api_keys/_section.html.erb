@@ -1,0 +1,53 @@
+<section id="api-keys" class="mb-4">
+  <h2 class="h-section-label">API keys</h2>
+  <p class="text-13 text-secondary mb-3">
+    Give each client (a search or RAG indexer, for example) its own key so you can revoke it on its own.
+    Keys can read the catalog feed at <code><%= api_v1_catalog_url %></code>,
+    sent as <code>Authorization: Bearer &lt;key&gt;</code>.
+  </p>
+
+  <% if api_keys.any? %>
+    <div class="table-responsive mb-3">
+      <table class="table table-sm table-compact align-middle">
+        <thead class="text-secondary text-uppercase text-11">
+          <tr>
+            <th>Name</th>
+            <th>Key</th>
+            <th>Created</th>
+            <th>Last used</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% api_keys.each do |api_key| %>
+            <tr>
+              <td><%= api_key.name %></td>
+              <td><code class="text-secondary"><%= api_key.token_prefix %>…</code></td>
+              <td class="text-secondary text-13">
+                <%= api_key.created_at.to_date.iso8601 %>
+                <% if api_key.created_by %>by <%= api_key.created_by.name %><% end %>
+              </td>
+              <td class="text-secondary text-13">
+                <%= api_key.last_used_at ? "#{time_ago_in_words(api_key.last_used_at)} ago" : 'Never' %>
+              </td>
+              <td class="text-end">
+                <%= button_to 'Revoke', settings_api_key_path(api_key), method: :delete, class: 'btn btn-outline-danger btn-sm',
+                              form: { data: { turbo_confirm: "Revoke the key for #{api_key.name}? Clients using it will stop working." } } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-secondary text-13 mb-3">No API keys yet.</p>
+  <% end %>
+
+  <%= form_with model: ApiKey.new, url: settings_api_keys_path, data: { turbo: false }, class: 'd-flex gap-2 align-items-end' do |form| %>
+    <div class="flex-grow-1">
+      <%= form.label :name, 'New key for', class: 'form-label' %>
+      <%= form.text_field :name, class: 'form-control form-control-sm', placeholder: 'Open WebUI indexer', required: true, maxlength: 100 %>
+    </div>
+    <%= form.submit 'Create API key', class: 'btn btn-outline-secondary btn-sm' %>
+  <% end %>
+</section>

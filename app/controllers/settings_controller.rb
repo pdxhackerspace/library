@@ -3,7 +3,7 @@ class SettingsController < ApplicationController
 
   def show
     @site_setting = SiteSetting.instance
-    @locations = Location.with_inventory_counts.ordered.to_a
+    load_lists
   end
 
   def update
@@ -12,7 +12,7 @@ class SettingsController < ApplicationController
     if @site_setting.update(site_setting_params)
       redirect_to settings_path, notice: 'Settings saved.'
     else
-      @locations = Location.with_inventory_counts.ordered.to_a
+      load_lists
       render :show, status: :unprocessable_content
     end
   end
@@ -25,6 +25,11 @@ class SettingsController < ApplicationController
   end
 
   private
+
+  def load_lists
+    @locations = Location.with_inventory_counts.ordered.to_a
+    @api_keys = ApiKey.includes(:created_by).ordered.to_a
+  end
 
   def site_setting_params
     params.expect(site_setting: %i[site_name loan_period_days overdue_nag_interval_days

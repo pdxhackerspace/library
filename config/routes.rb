@@ -28,9 +28,16 @@ Rails.application.routes.draw do
 
   resources :loans, only: [:index, :show]
 
+  namespace :api do
+    namespace :v1 do
+      get 'catalog', to: 'catalog#index', as: :catalog
+    end
+  end
+
   resource :settings, only: %i[show update] do
     get :books_csv, on: :member
     resources :locations, only: %i[create update destroy], module: :settings
+    resources :api_keys, only: %i[create destroy], module: :settings
   end
 
   root 'home#index'

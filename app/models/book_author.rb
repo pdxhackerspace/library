@@ -1,5 +1,5 @@
 class BookAuthor < ApplicationRecord
-  belongs_to :book
+  belongs_to :book, touch: true
   belongs_to :author
 
   validates :author_id, uniqueness: { scope: :book_id }

@@ -6,6 +6,7 @@ class Location < ApplicationRecord
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 
   before_validation :normalize_name
+  after_update_commit :touch_books, if: :saved_change_to_name?
 
   scope :ordered, -> { order(:position, :name) }
   scope :alphabetical, -> { order(:name) }
@@ -16,6 +17,11 @@ class Location < ApplicationRecord
   end
 
   private
+
+  # Keeps book updated_at (used by the catalog feed's since filter) in step with shelf renames.
+  def touch_books
+    books.touch_all # rubocop:disable Rails/SkipsModelValidations -- timestamps only
+  end
 
   def normalize_name
     self.name = name.to_s.strip.gsub(/\s+/, ' ')
