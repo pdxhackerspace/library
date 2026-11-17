@@ -119,6 +119,10 @@ curl -H "Authorization: Bearer lib_..." https://library.example.com/api/v1/catal
 - Responses carry an `ETag`; send `If-None-Match` to get `304 Not Modified` when nothing changed.
 - Book and cover URLs use `APP_BASE_URL` when it's set.
 
+## Prometheus metrics
+
+`GET /metrics` exposes job, server, request, and library statistics for Prometheus. It's disabled until you set `METRICS_TOKEN` (on the web and Sidekiq containers) and requires `Authorization: Bearer <token>`. See [docs/metrics.md](docs/metrics.md) for the full metric list and a scrape config.
+
 ## Guest browsing (on-space)
 
 Visitors on your hackerspace network can browse the catalog without signing in. Set comma-separated CIDRs in `.env`:

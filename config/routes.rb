@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get 'up' => 'rails/health#show', as: :rails_health_check
+  get 'metrics', to: 'metrics#show', as: :metrics
 
   get '/login', to: 'sessions#new', as: :login
   post '/login', to: 'sessions#create'
