@@ -51,7 +51,7 @@ Recorded by a Sidekiq server middleware, per job class and queue. Counters live 
 | `library_sidekiq_retries_by_job`, `_dead_by_job`, `_scheduled_by_job` | gauge | `job` | First 1000 entries scanned |
 | `library_sidekiq_running_by_job` | gauge | `job` | Executing right now |
 | `library_sidekiq_cron_job_info` | gauge | `name`, `job`, `cron`, `status` | Recurring jobs |
-| `library_sidekiq_cron_last_enqueue_timestamp_seconds` | gauge | `name` | |
+| `library_sidekiq_cron_last_enqueue_timestamp_seconds` | gauge | `name` | Omitted for jobs that haven't run yet |
 
 ### Servers (Sidekiq processes)
 
@@ -85,7 +85,8 @@ Recorded per controller action (the metrics endpoint is excluded).
 | `library_authors`, `_subjects`, `_isbns`, `_publishers`, `_locations` | |
 | `library_loans` | `state` (`active`, `overdue`, `due_today`, `returned`) |
 | `library_loan_max_days_overdue`, `library_loans_by_borrower_active_max` | |
-| `library_api_keys`, `library_api_key_last_used_timestamp_seconds` | `name` |
+| `library_api_keys` | |
+| `library_api_key_last_used_timestamp_seconds` | `id`, `name` (omitted for keys never used) |
 | `library_stored_files`, `library_stored_bytes` | |
 
 ### Runtime and scrape health

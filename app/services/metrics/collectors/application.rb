@@ -76,8 +76,9 @@ module Metrics
       def collect_api_keys
         keys = ApiKey.ordered.to_a
         @out.gauge('library_api_keys', 'API keys.', keys.size)
+        used = keys.select(&:last_used_at)
         @out.gauge('library_api_key_last_used_timestamp_seconds', 'When each API key was last used, unix time.',
-                   keys.map { |key| [{ name: key.name }, key.last_used_at&.to_f || 0] })
+                   used.map { |key| [{ id: key.id, name: key.name }, key.last_used_at.to_f] })
       end
     end
   end

@@ -26,7 +26,16 @@ module Metrics
       assert_includes @text, %(library_loans{state="active"} #{Loan.active.count})
       assert_includes @text, %(library_loans{state="overdue"} #{Loan.overdue.count})
       assert_includes @text, "library_api_keys #{ApiKey.count}\n"
-      assert_includes @text, %(library_api_key_last_used_timestamp_seconds{name="RAG indexer"})
+    end
+
+    test 'api key timestamps are unique per key and skip never-used keys' do
+      used = ApiKey.generate(name: ApiKey.first.name)
+      used.last_used_at = Time.current
+      used.save!
+      text = with_metrics { Collector.new.call }
+
+      assert_includes text, %(library_api_key_last_used_timestamp_seconds{id="#{used.id}",name="#{used.name}"})
+      assert_not_includes text, %(id="#{ApiKey.first.id}",name)
     end
 
     test 'reports runtime and database info' do

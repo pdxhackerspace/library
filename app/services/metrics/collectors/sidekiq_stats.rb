@@ -98,7 +98,7 @@ module Metrics
         @out.gauge('library_sidekiq_cron_job_info', 'Scheduled recurring jobs.',
                    jobs.map { |j| [{ name: j.name, job: j.klass, cron: j.cron, status: j.status }, 1] })
         @out.gauge('library_sidekiq_cron_last_enqueue_timestamp_seconds', 'Last run of each recurring job, unix time.',
-                   jobs.map { |j| [{ name: j.name }, j.last_enqueue_time&.to_time.to_f] })
+                   jobs.filter_map { |j| [{ name: j.name }, j.last_enqueue_time.to_time.to_f] if j.last_enqueue_time })
       end
     end
   end
