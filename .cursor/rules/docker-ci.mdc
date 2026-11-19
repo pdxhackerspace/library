@@ -8,8 +8,8 @@ alwaysApply: false
 
 ## Docker
 
-- **Base image:** `ruby:4.0.9-slim` with multi-stage build
-- **Node:** Installed via nodenv (Node 24.x) for asset compilation
+- **Base image:** `ruby:4.0.10-slim` with multi-stage build
+- **Node:** Node 26.x for asset compilation
 - **Yarn:** Use `yarn install --frozen-lockfile`
 - **Assets:** Precompiled with `SECRET_KEY_BASE_DUMMY=1`
 - **Runtime:** Non-root `rails` user; entrypoint at `bin/docker-entrypoint`; migrations via `bin/prepare-database`
@@ -37,5 +37,5 @@ Dev/test/lint bind-mount the repo; production uses the built image only.
 
 ## GitHub Actions
 
-- **ci.yml:** Runs on push/PR to `main` and `staging`; parallel `lint` + `test` jobs; caches Bundler, Yarn, built CSS, and RuboCop; Postgres 16 + Redis 8 services
-- **release.yml:** Triggered by `v*` tags only; runs tests then builds and pushes Docker image to `ghcr.io` with `:latest`, `:VERSION`, and `:MAJOR` tags
+- **ci.yml:** Runs on push/PR to `main` and `staging`; parallel `lint` + `test` jobs; caches Bundler, Yarn, built CSS, and RuboCop; Postgres 18 + Redis 8 services
+- **release.yml:** Manual run on `main` (or a pushed `v*` tag) waits for CI, then builds and pushes the Docker image to `ghcr.io` with `:latest`, `:X.Y.Z`, and `:MAJOR` tags

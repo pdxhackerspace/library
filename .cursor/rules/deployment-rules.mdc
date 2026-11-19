@@ -95,10 +95,12 @@ Use **Merge Commit** for the `staging` → `main` release PR (preserves history)
 
 This project uses semantic versioning (MAJOR.MINOR.PATCH).
 
-The canonical version lives in `VERSION` (a plain text file in the root).
+The newest `vX.Y.Z` git tag is the current version. Released images bake it in as `APP_VERSION`. Local development shows `dev`.
 
-When opening a release PR (staging → main):
-- Bump the version following semver: patch for fixes, minor for new features, major for breaking changes
-- The merge to main will automatically tag the commit and build a versioned Docker image
+To cut a release, run the Release workflow on `main`:
 
-The version is available to the application as the `APP_VERSION` environment variable.
+```bash
+gh workflow run release.yml --ref main -f bump=patch
+```
+
+Use `minor` or `major` instead of `patch` when the change calls for it. The workflow waits for CI on that commit, publishes the image, then tags `vX.Y.Z`.

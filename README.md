@@ -7,16 +7,16 @@
 [![CodeQL](https://img.shields.io/github/check-runs/pdxhackerspace/library/main?nameFilter=Analyze%20(ruby)&label=codeql)](https://github.com/pdxhackerspace/library/security/code-scanning)
 
 [![Version](https://img.shields.io/github/v/release/pdxhackerspace/library?label=version&color=blue)](https://github.com/pdxhackerspace/library/releases)
-[![Ruby](https://img.shields.io/badge/Ruby-4.0.9-blue?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
-[![Rails](https://img.shields.io/badge/Rails-8.1.4-blue?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
+[![Ruby](https://img.shields.io/badge/Ruby-4.0.10-blue?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Rails](https://img.shields.io/badge/Rails-8.1.4.1-blue?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A minimal Rails app for tracking physical books that can be loaned at PDX Hackerspace.
 
 ## Stack
 
-- Rails 8.1, Ruby 4.0.9
-- PostgreSQL 16, Redis 8, Sidekiq 8
+- Rails 8.1.4.1, Ruby 4.0.10
+- PostgreSQL 18, Redis 8, Sidekiq 8
 - Bootstrap 5.3, Hotwire (Turbo + Stimulus)
 - Docker Compose for local dev, test, lint, and production-style deployment
 - GitHub Actions CI; Docker images published to GHCR on version tags

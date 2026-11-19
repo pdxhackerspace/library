@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '4.0.9'
+ruby '4.0.10'
 
 gem 'cssbundling-rails'
 gem 'importmap-rails'
@@ -21,7 +21,7 @@ gem 'omniauth', '~> 2.1'
 gem 'omniauth_openid_connect', '~> 0.8.0'
 gem 'omniauth-rails_csrf_protection'
 
-gem 'connection_pool', '< 4.0'
+gem 'connection_pool', '~> 3.0'
 gem 'redis', '>= 4.0.1'
 gem 'sidekiq', '~> 8.1'
 gem 'sidekiq-cron', '~> 2.3'
@@ -31,7 +31,8 @@ gem 'sentry-ruby'
 gem 'sentry-sidekiq'
 
 gem 'bootsnap', require: false
-gem 'image_processing', '~> 1.2'
+gem 'image_processing', '~> 2.2'
+gem 'ruby-vips', require: false
 gem 'tzinfo-data', platforms: %i[windows jruby]
 
 group :development, :test do

@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1
 
-ARG RUBY_VERSION=4.0.9
+ARG RUBY_VERSION=4.0.10
 FROM registry.docker.com/library/ruby:$RUBY_VERSION-slim AS base
-ARG RUBY_VERSION=4.0.9
+ARG RUBY_VERSION=4.0.10
 RUN test "$(ruby -e 'print RUBY_VERSION')" = "${RUBY_VERSION}" || \
     (echo "Expected Ruby ${RUBY_VERSION}, got $(ruby -v)" >&2; exit 1)
 
@@ -26,14 +26,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      build-essential git libpq-dev node-gyp pkg-config python-is-python3 libyaml-dev && \
+      build-essential git libatomic1 libpq-dev node-gyp pkg-config python-is-python3 libyaml-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-COPY --from=node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node
-COPY --from=node:24-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack && \
-    corepack enable && \
-    corepack prepare yarn@stable --activate
+COPY --from=node:26-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:26-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+# Node 26 no longer ships Corepack. The yarn npm package is classic Yarn 1, which matches yarn.lock.
+RUN ln -sf ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    npm install -g --allow-scripts=yarn yarn@1.22.22 && \
+    yarn --version
 
 COPY Gemfile Gemfile.lock ./
 RUN --mount=type=cache,target=/root/.bundle/cache \

@@ -15,7 +15,7 @@ x-web-common: &web-common
     dockerfile: Dockerfile.dev
     pull: true
     args:
-      RUBY_VERSION: "4.0.9"
+      RUBY_VERSION: "4.0.10"
   image: pdxhackerspace_library_dev:latest
   env_file:
     - .env
@@ -40,7 +40,7 @@ x-db-env-dev: &db-env-dev
 
 services:
   pdxhackerspace-library-dev-postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: pdxhackerspace-library-dev-postgres
     hostname: pdxhackerspace-library-dev-postgres
     restart: unless-stopped
@@ -49,7 +49,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - pdxhackerspace_library_dev_postgres_data:/var/lib/postgresql/data
+      - pdxhackerspace_library_dev_postgres_data:/var/lib/postgresql
     networks:
       pdxhackerspace_library_dev:
         aliases:
