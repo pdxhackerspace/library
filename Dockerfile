@@ -26,14 +26,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      build-essential git libpq-dev node-gyp pkg-config python-is-python3 libyaml-dev && \
+      build-essential git libatomic1 libpq-dev node-gyp pkg-config python-is-python3 libyaml-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY --from=node:26-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:26-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -sf /usr/local/lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack && \
-    corepack enable && \
-    corepack prepare yarn@stable --activate
+# Node 26 no longer ships Corepack. The yarn npm package is classic Yarn 1, which matches yarn.lock.
+RUN ln -sf ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    npm install -g --allow-scripts=yarn yarn@1.22.22 && \
+    yarn --version
 
 COPY Gemfile Gemfile.lock ./
 RUN --mount=type=cache,target=/root/.bundle/cache \
