@@ -32,7 +32,7 @@ gem 'sentry-sidekiq'
 
 gem 'bootsnap', require: false
 gem 'image_processing', '~> 2.2'
-gem 'ruby-vips'
+gem 'ruby-vips', require: false
 gem 'tzinfo-data', platforms: %i[windows jruby]
 
 group :development, :test do
