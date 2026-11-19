@@ -1,14 +1,8 @@
 name: Setup Ruby
-description: Install Ruby and Bundler gems with cache
-inputs:
-  ruby-version:
-    description: Ruby version
-    required: false
-    default: '4.0.9'
+description: Install Ruby from .ruby-version and Bundler gems with cache
 runs:
   using: composite
   steps:
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ inputs.ruby-version }}
         bundler-cache: true
