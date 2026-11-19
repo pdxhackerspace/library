@@ -79,6 +79,9 @@ jobs:
       - name: Set up frontend assets
         uses: ./.github/actions/setup-frontend
 
+      - name: Install libvips
+        run: sudo apt-get update && sudo apt-get install -y libvips-dev
+
       - name: Prepare database
         run: bin/rails db:test:prepare
 
